@@ -12,12 +12,8 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Data Files
-# It is best practice not to commit large datasets (CSV, Parquet, JSON, etc.) to Git.
-data/
-*.csv
-*.parquet
-*.json
-*.sqlite
+# Ignore raw source data (large/unprocessed files) but allow everything else in data/
+data/raw/
 
 # Environment Variables
 .env
