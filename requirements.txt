@@ -1,0 +1,17 @@
+# Core Data Science & Analysis
+pandas
+numpy
+scikit-learn
+jupyter
+
+# Deep Learning & GNN (Cloud Side)
+torch
+torch-geometric
+
+# On-Device ML (Device Side)
+MNN
+tensorflow
+
+# Data processing formats (based on existing clean_meta.parquet)
+pyarrow
+fastparquet

@@ -1,0 +1,29 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Data Files
+# It is best practice not to commit large datasets (CSV, Parquet, JSON, etc.) to Git.
+data/
+*.csv
+*.parquet
+*.json
+*.sqlite
+
+# Environment Variables
+.env
+
+# Editor / OS generated files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
