@@ -2,31 +2,31 @@
 
 ---
 
-## 🗄️ Data Engineering & Graph Construction
+##  Data Engineering & Graph Construction
 
 ### Nhiệm vụ 1.1: Bipartite Edge Mapping & Inductive Split
 
-- [ ] Tải `clean_reviews.parquet` và `clean_meta.parquet`
-- [ ] Tạo continuous integer ID mappings (0 → N-1) cho tất cả `reviewerID` (Users) và `asin` (Items) duy nhất
-- [ ] Áp dụng **90/10 split** trên `reviewerID` → 10% users làm **unseen inductive holdout set**
-- [ ] Trích xuất **User-Item edges**: tensor `[2, num_interactions]` — bipartite interaction graph của training set
-- [ ] Trích xuất **Item-Item edges**: phân tích `also_buy` / `also_view` → tensor `[2, num_item_edges]` cho global item graph
+- [x] Tải `clean_reviews.parquet` và `clean_meta.parquet`
+- [x] Tạo continuous integer ID mappings (0 → N-1) cho tất cả `reviewerID` (Users) và `asin` (Items) duy nhất
+- [x] Áp dụng **90/10 split** trên `reviewerID` → 10% users làm **unseen inductive holdout set**
+- [x] Trích xuất **User-Item edges**: tensor `[2, num_interactions]` — bipartite interaction graph của training set
+- [x] Trích xuất **Item-Item edges**: phân tích `also_buy` / `also_view` → tensor `[2, num_item_edges]` cho global item graph
 
 ### Nhiệm vụ 1.2: Textual Node Feature Encoding
 
-- [ ] Khởi tạo pre-trained NLP encoder (`sentence-transformers/all-MiniLM-L6-v2`)
-- [ ] Xử lý `title` + `description` của từng item → dense feature vectors `x_dict['item']` shape `[num_items, hidden_dim]`
-- [ ] Khởi tạo user features `x_dict['user']` (chiến lược: `torch.zeros([num_users, hidden_dim])` hoặc mean vector từ các items đã tương tác)
+- [x] Khởi tạo pre-trained NLP encoder (`sentence-transformers/all-MiniLM-L6-v2`)
+- [x] Xử lý `title` + `description` của từng item → dense feature vectors `x_dict['item']` shape `[num_items, hidden_dim]`
+- [x] Khởi tạo user features `x_dict['user']` (chiến lược: `torch.zeros([num_users, hidden_dim])` hoặc mean vector từ các items đã tương tác)
 
 ### Nhiệm vụ 1.3: PyG HeteroData Instantiation
 
-- [ ] Cấu trúc đối tượng `torch_geometric.data.HeteroData`
-- [ ] Gán node features: `data['user'].x` và `data['item'].x`
-- [ ] Gán edge indices: `data['user', 'reviews', 'item'].edge_index` và `data['item', 'also_bought', 'item'].edge_index`
+- [x] Cấu trúc đối tượng `torch_geometric.data.HeteroData`
+- [x] Gán node features: `data['user'].x` và `data['item'].x`
+- [x] Gán edge indices: `data['user', 'reviews', 'item'].edge_index` và `data['item', 'also_bought', 'item'].edge_index`
 
 ---
 
-## ⚙️ Data Loader & Link Predictor Engineering
+##  Data Loader & Link Predictor Engineering
 
 ### Nhiệm vụ 1.1: Thiết lập Subgraph Mini-Batching
 
@@ -43,7 +43,7 @@
 
 ---
 
-## 🧠 GraphSAGE Architecture & Inductive Evaluation
+##  GraphSAGE Architecture & Inductive Evaluation
 
 ### Nhiệm vụ 2.1: Xây dựng GraphSAGE Encoder
 
@@ -65,7 +65,7 @@
 
 ---
 
-## 📊 GCN Architecture & Transductive Baseline Evaluation
+##  GCN Architecture & Transductive Baseline Evaluation
 
 ### Nhiệm vụ 3.1: Xây dựng GCN Encoder
 
