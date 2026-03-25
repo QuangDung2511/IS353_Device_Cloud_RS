@@ -30,16 +30,16 @@
 
 ### Nhiệm vụ 1.1: Thiết lập Subgraph Mini-Batching
 
-- [ ] Khởi tạo `torch_geometric.loader.LinkNeighborLoader`
-- [ ] Xác định `edge_label_index` → edge type `('user', 'reviews', 'item')` cho training split
-- [ ] Cấu hình `num_neighbors` (ví dụ: `[15, 10]`) để giới hạn 2-hop computational graph
-- [ ] Triển khai **dynamic negative sampling** với `neg_sampling_ratio=1.0` bên trong loader
+- [x] Khởi tạo `torch_geometric.loader.LinkNeighborLoader`
+- [x] Xác định `edge_label_index` → edge type `('user', 'reviews', 'item')` cho training split
+- [x] Cấu hình `num_neighbors` (ví dụ: `[15, 10]`) để giới hạn 2-hop computational graph
+- [x] Triển khai **dynamic negative sampling** với `neg_sampling_ratio=1.0` bên trong loader
 
 ### Nhiệm vụ 1.2: Xây dựng Edge Decoder Module
 
-- [ ] Định nghĩa class `torch.nn.Module` (ví dụ: `DotProductDecoder`)
-- [ ] Triển khai `forward(user_emb, item_emb)`
-- [ ] Tính element-wise multiplication + sum (hoặc shallow MLP) → output 1D logits tensor shape `[batch_size]`
+- [x] Định nghĩa class `torch.nn.Module` (ví dụ: `DotProductDecoder`)
+- [x] Triển khai `forward(user_emb, item_emb)`
+- [x] Tính element-wise multiplication + sum (hoặc shallow MLP) → output 1D logits tensor shape `[batch_size]`
 
 ---
 
