@@ -47,21 +47,23 @@
 
 ### Nhiệm vụ 2.1: Xây dựng GraphSAGE Encoder
 
-- [ ] Định nghĩa `torch.nn.Module` dùng `SAGEConv` bọc trong `to_hetero` cho bipartite structure
-- [ ] Triển khai kiến trúc **2-layer message-passing** với `in_channels` và `hidden_channels`
-- [ ] Áp dụng `relu` và `Dropout` giữa các convolution layers
+- [x] Định nghĩa `torch.nn.Module` dùng `SAGEConv` trong `HeteroConv` cho từng loại cạnh (tương đương hetero GraphSAGE)
+- [x] Triển khai kiến trúc **2-layer message-passing** với `in_channels` và `hidden_channels`
+- [x] Áp dụng `relu` và `Dropout` giữa các convolution layers
 
 ### Nhiệm vụ 2.2: Vòng lặp huấn luyện GraphSAGE
 
-- [ ] Khởi tạo SAGE encoder + Edge Decoder
-- [ ] Khởi tạo `BCEWithLogitsLoss` và `Adam` optimizer
-- [ ] Thực hiện mini-batch training loop trên `LinkNeighborLoader` với backpropagation qua encoder-decoder
+- [x] Khởi tạo SAGE encoder + Edge Decoder
+- [x] Khởi tạo `BCEWithLogitsLoss` và `Adam` optimizer
+- [x] Thực hiện mini-batch training loop trên `LinkNeighborLoader` với backpropagation qua encoder-decoder
 
 ### Nhiệm vụ 2.3: Thực thi Inductive Inference
 
-- [ ] Áp dụng `torch.no_grad()` và chuyển model sang `eval()`
-- [ ] Trích xuất validation/test `HeteroData` subgraph chứa 10% inductive holdout users
-- [ ] Thực hiện forward pass → tính toán động representations cho **unseen user nodes**
+- [x] Áp dụng `torch.no_grad()` và chuyển model sang `eval()`
+- [x] Trích xuất validation/test `HeteroData` subgraph chứa 10% inductive holdout users
+- [x] Thực hiện forward pass → tính toán động representations cho **unseen user nodes**
+
+**Triển khai:** [`notebooks/06_graphsage_train_eval.ipynb`](notebooks/06_graphsage_train_eval.ipynb) — encoder `HeteroConv` + `SAGEConv` (tương đương hetero GraphSAGE), cạnh `rev_reviews`, checkpoint `data/processed/graphsage_link_pred.pt`.
 
 ---
 
