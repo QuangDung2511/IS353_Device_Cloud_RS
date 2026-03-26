@@ -7,13 +7,21 @@ jupyter
 # Deep Learning & GNN (Cloud Side)
 torch
 torch-geometric
-# LinkNeighborLoader / NeighborSampler needs pyg-lib AND a matching torch-sparse (or pyg-lib alone if your PyG build allows).
-# Install wheels that EXACTLY match `python -c "import torch; print(torch.__version__)"` (e.g. 2.11.0+cu130):
-#   pip install pyg-lib torch-sparse -f https://data.pyg.org/whl/torch-2.11.0+cu130.html
+# Jupyter kernel support for the project virtualenv
+ipykernel
+# PyG sampling backends used by LinkNeighborLoader / NeighborSampler are NOT pinned here,
+# because they depend on the exact Python version, torch version, and CUDA/CPU build on each machine.
+# Install wheels that EXACTLY match `python -c "import torch; print(torch.__version__)"`.
+# Example for this repo's current environment:
+#   pip install pyg-lib torch-sparse torch-scatter -f https://data.pyg.org/whl/torch-2.6.0+cu124.html
 # CPU example:
-#   pip install pyg-lib torch-sparse -f https://data.pyg.org/whl/torch-2.11.0+cpu.html
+#   pip install pyg-lib torch-sparse torch-scatter -f https://data.pyg.org/whl/torch-2.6.0+cpu.html
 # Index of all builds: https://data.pyg.org/whl/
-# If you see OSError/undefined symbol when importing pyg_lib, uninstall and reinstall both from the same -f URL as torch.
+# If you see OSError / undefined symbol, uninstall and reinstall all three from the same -f URL as torch.
+# These are required for notebooks 04 / 06 / 07 when using LinkNeighborLoader:
+#   pyg-lib
+#   torch-sparse
+#   torch-scatter
 sentence-transformers
 
 # On-Device ML (Device Side)
