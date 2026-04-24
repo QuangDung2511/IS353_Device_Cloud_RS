@@ -1,0 +1,84 @@
+Bài tập 02: Graph Neural Networks in Modern Recommender Systems - Device-Cloud Collaborative Learning for Graph Neural Networks
+1. Giới thiệu bài toán (1 điểm)
+Bối cảnh:
+ Các hệ thống khuyến nghị truyền thống tải toàn bộ dữ liệu lên Cloud, gây lo ngại về quyền riêng tư và tốn tài nguyên truyền tải.
+Giải pháp:
+ Đồ án tập trung vào việc chia nhỏ mô hình GNN:
+Cloud:
+ Lưu trữ đồ thị khổng lồ, học các đặc trưng toàn cục (global patterns).
+Device (Điện thoại):
+ Thực hiện tính toán trên đồ thị con (subgraph) cá nhân, cập nhật sở thích tức thời mà không cần đẩy dữ liệu thô lên server.
+2. Dữ liệu (1 điểm)
+Định dạng:
+ Sử dụng tập dữ liệu 
+Ali-CCP
+ (Alibaba Click-Conversion Prediction) hoặc 
+Mobile-Recommendation
+ từ Kaggle.
+Đặc điểm cần nhấn mạnh:
+ Dữ liệu phải có thuộc tính của thiết bị (như Device_ID) và các đặc trưng thời gian thực.
+Trực quan:
+ Vẽ biểu đồ so sánh dung lượng dữ liệu thô so với dữ liệu sau khi được nhúng (embeddings) để chứng minh lợi ích của việc truyền tải vector thay vì dữ liệu gốc.
+Các tập dữ liệu (Datasets) tiêu biểu cho Device-Cloud Collaborative Learning
+Trong bài toán này, đặc điểm quan trọng nhất của dữ liệu là phải có 
+tương tác người dùng - vật phẩm (user-item interactions)
+ kèm theo thông tin 
+ngữ cảnh (context)
+ hoặc 
+thời gian (timestamp)
+ để mô phỏng việc xử lý trên thiết bị di động (on-device).
+Ali-CCP (Alibaba Click-Conversion Prediction):
+Lý do:
+ Đây là bộ dữ liệu thực tế từ Alibaba, đơn vị tiên phong trong việc áp dụng Device-Cloud Collaborative Learning (với hệ thống Walle). Nó chứa các hành vi của người dùng như Click và Purchase, phù hợp để huấn luyện phần "Cloud" (toàn cục) và tinh chỉnh phần "Device" (cá nhân hóa).
+Nguồn:
+ Có sẵn trên
+ Alibaba Tianchi
+.
+Taobao User Behavior Dataset:
+Lý do:
+ Chứa chuỗi hành vi của hàng triệu người dùng với nhãn thời gian cực kỳ chi tiết. các em có thể sử dụng dữ liệu này để xây dựng đồ thị tương tác động.
+Nguồn:
+ Alibaba Tianchi Dataset
+.
+Amazon Product Data:
+Lý do:
+ Cung cấp dữ liệu về Review và Metadata sản phẩm. các em có thể demo việc lưu trữ nhúng (embedding) sản phẩm trên Cloud và lưu trữ lịch sử đánh giá của người dùng trên Device.
+Nguồn:
+ Amazon Product Data Archive
+.
+3. Cơ sở lý thuyết & Model (2 điểm)
+các em cần trình bày cơ chế 
+Collaborative Inference/Training
+Chi tiết Node/Cạnh:
+ Mô tả cách một "Node" người dùng trên thiết bị chỉ giữ các kết nối với các sản phẩm họ vừa xem (Local Subgraph), trong khi Cloud giữ kết nối của tất cả người dùng (Global Graph).
+Một số paper tham khảo:
+"Device-Cloud Collaborative Recommendation via Meta Learning"
+"DCCL: Device-Cloud Collaborative Learning for Personalized Recommendation" 
+"Walle: An End-to-End, General-Purpose, and Large-Scale On-Device Deep Learning System"
+"CoCorrRec: Device-Cloud Collaborative Correction for On-Device Recommendation" 
+"Graph Neural Networks for Recommender Systems: Challenges, Methods, and Directions"
+4. Hiện thực (4 điểm)
+Thư viện đề xuất:
+MNN (Alibaba) hoặc TensorFlow Lite:
+ Để mô phỏng việc chạy trên Device.
+PyTorch Geometric (PyG):
+ Để xây dựng phần GNN trên Cloud.
+Link tham khảo:
+ GitHub - Alibaba Walle Framework
+ (Mô hình thực tế của Alibaba cho Device-Cloud).
+Nguồn dữ liệu để Demo hệ thống (Frameworks)
+Để thực hiện demo phần 
+hiện thực,
+ các em có thể tham khảo các mã nguồn mở sau:
+Walle (Alibaba):
+ Hệ thống thực tế đầu tiên triển khai Device-Cloud Collaborative Learning cho GNN quy mô lớn. các em có thể tìm các tài liệu mô tả kiến trúc này để làm cơ sở cho phần thuyết minh.
+PyTorch Geometric (PyG):
+ Đây là thư viện mạnh nhất hiện nay để hiện thực GNN. các em có thể dùng PyG để xây dựng mô hình GNN trên Cloud và mô phỏng việc đẩy các vector nhúng (embeddings) xuống một "mô hình thu nhỏ" trên Device.
+MNN (Mobile Neural Network):
+ Một engine suy luận học máy siêu nhẹ của Alibaba, chuyên dùng để chạy các mô hình (như phần Device-encoder của GNN) ngay trên điện thoại di động.
+Gợi ý cấu trúc dữ liệu cho Demo
+Theo tài liệu các em cung cấp, khi làm việc với Device-Cloud, các em cần cấu trúc dữ liệu thành hai phần:
+Global Knowledge (Cloud):
+ Lưu trữ đồ thị liên kết giữa các Item (Sản phẩm) để học các đặc trưng chung.
+Local Subgraph (Device):
+ Mỗi thiết bị sẽ lưu trữ một đồ thị con gồm 1-depth hoặc 2-depth xung quanh người dùng đó (User's historical interactions)
