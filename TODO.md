@@ -71,17 +71,17 @@
 
 ### Nhiệm vụ 3.1: Xây dựng GCN Encoder
 
-- [ ] Định nghĩa `torch.nn.Module` dùng `GCNConv` bọc trong `to_hetero`
-- [ ] Triển khai kiến trúc **2 tầng** với `hidden_channels` giống hệt GraphSAGE (để kiểm soát parameter counts)
+- [x] Định nghĩa `torch.nn.Module` dùng `GCNConv` bọc trong `to_hetero`
+- [x] Triển khai kiến trúc **2 tầng** với `hidden_channels` giống hệt GraphSAGE (để kiểm soát parameter counts)
 
 ### Nhiệm vụ 3.2: Vòng lặp huấn luyện GCN
 
-- [ ] Khởi tạo GCN encoder + Edge Decoder
-- [ ] Khởi tạo `BCEWithLogitsLoss` và `Adam` optimizer
-- [ ] Thực hiện training loop trên training topology đã cung cấp
+- [x] Khởi tạo GCN encoder + Edge Decoder
+- [x] Khởi tạo `BCEWithLogitsLoss` và `Adam` optimizer
+- [x] Thực hiện training loop trên training topology đã cung cấp
 
 ### Nhiệm vụ 3.3: Kiểm chứng các hạn chế Transductive
 
-- [ ] Áp dụng `torch.no_grad()` và chuyển model sang `eval()`
-- [ ] Thử nghiệm forward pass trên cùng validation/test `HeteroData` subgraph của Thành viên 2
-- [ ] Ghi lại: structural dimension mismatches, OOM errors, hoặc embedding errors để chứng minh hạn chế của GCN's symmetric normalization matrix trên isolated/unseen subgraphs
+- [x] Áp dụng `torch.no_grad()` và chuyển model sang `eval()`
+- [x] Thử nghiệm forward pass trên cùng validation/test `HeteroData` subgraph của Thành viên 2
+- [x] Ghi lại: structural dimension mismatches, OOM errors, hoặc embedding errors để chứng minh hạn chế của GCN's symmetric normalization matrix trên isolated/unseen subgraphs
