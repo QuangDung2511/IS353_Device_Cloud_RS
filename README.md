@@ -54,7 +54,8 @@ We evaluated the framework using the **Amazon Reviews (Baby Products)** dataset,
 | :--- | :--- | :--- | :--- |
 | **GraphSAGE (DCCL)** | **Seen Users** | **0.9817** | **0.9720** |
 | **GraphSAGE (DCCL)** | **Hidden Users** | **0.9362** | **0.9202** |
-| GCN Baseline | Seen Users | 0.9780 | 0.9650 |
+| GCN Baseline | Seen Users | 0.9862 | 0.9804 |
+| GCN Baseline | Hidden Users | 0.8392 | 0.8804 |
 | Random Baseline | - | 0.5128 | 0.5000 |
 
 ### Key Findings
