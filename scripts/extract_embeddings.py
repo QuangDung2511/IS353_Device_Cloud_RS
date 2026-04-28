@@ -174,18 +174,37 @@ def save_artifacts(
     output_dir: str,
     item_id_map: Optional[dict] = None,
 ):
-    """Lưu embeddings và optional mapping file."""
+    """Lưu embeddings và optional mapping file.
+    Đồng thời lưu format JSON tối ưu cho Azure Cosmos DB."""
     os.makedirs(output_dir, exist_ok=True)
 
     emb_path = os.path.join(output_dir, "item_embeddings.npy")
     np.save(emb_path, item_embeddings)
-    print(f"[✓] Saved item embeddings → {emb_path}  ({item_embeddings.nbytes / 1024:.1f} KB)")
+    print(f"[✓] Saved item embeddings (.npy) → {emb_path}  ({item_embeddings.nbytes / 1024:.1f} KB)")
 
     if item_id_map is not None:
         map_path = os.path.join(output_dir, "item_id_map.json")
         with open(map_path, "w", encoding="utf-8") as f:
             json.dump(item_id_map, f, ensure_ascii=False, indent=2)
         print(f"[✓] Saved item ID map    → {map_path}")
+
+    # Bổ sung logic save format JSON cho Cosmos DB
+    cosmos_path = os.path.join(output_dir, "item_embeddings_cosmos.json")
+    print(f"[INFO] Formatting {len(item_embeddings)} items for Cosmos DB...")
+    
+    cosmos_data = []
+    for i, emb in enumerate(item_embeddings):
+        # Sử dụng string của index làm ID và PartitionKey theo chuẩn của Cosmos DB
+        item_id = str(i)
+        cosmos_data.append({
+            "id": item_id,
+            "partitionKey": item_id,
+            "embedding": emb.tolist()
+        })
+    
+    with open(cosmos_path, "w", encoding="utf-8") as f:
+        json.dump(cosmos_data, f, ensure_ascii=False)
+    print(f"[✓] Saved item embeddings (Cosmos DB JSON format) → {cosmos_path}")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
