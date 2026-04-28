@@ -7,6 +7,7 @@ và lưu dưới dạng NumPy memory-mapped array để Cloud Server truy vấn 
 Output:
     cloud_server/artifacts/item_embeddings.npy   — shape [num_items, hidden_channels]
     cloud_server/artifacts/item_id_map.json      — mapping item_idx → asin
+    cloud_server/artifacts/item_embeddings.json  — standard JSON format for local testing/DB import
 """
 
 import argparse
@@ -175,7 +176,7 @@ def save_artifacts(
     item_id_map: Optional[dict] = None,
 ):
     """Lưu embeddings và optional mapping file.
-    Đồng thời lưu format JSON tối ưu cho Azure Cosmos DB."""
+    Đồng thời lưu JSON tiêu chuẩn để import vào DB hoặc test local."""
     os.makedirs(output_dir, exist_ok=True)
 
     emb_path = os.path.join(output_dir, "item_embeddings.npy")
@@ -188,23 +189,22 @@ def save_artifacts(
             json.dump(item_id_map, f, ensure_ascii=False, indent=2)
         print(f"[✓] Saved item ID map    → {map_path}")
 
-    # Bổ sung logic save format JSON cho Cosmos DB
-    cosmos_path = os.path.join(output_dir, "item_embeddings_cosmos.json")
-    print(f"[INFO] Formatting {len(item_embeddings)} items for Cosmos DB...")
+    # Bổ sung logic save format JSON cho MongoDB / Database khác
+    json_path = os.path.join(output_dir, "item_embeddings.json")
+    print(f"[INFO] Formatting {len(item_embeddings)} items for Database...")
     
-    cosmos_data = []
+    json_data = []
     for i, emb in enumerate(item_embeddings):
-        # Sử dụng string của index làm ID và PartitionKey theo chuẩn của Cosmos DB
-        item_id = str(i)
-        cosmos_data.append({
-            "id": item_id,
-            "partitionKey": item_id,
+        # Sử dụng int index làm item_id chung chung
+        item_id = int(i)
+        json_data.append({
+            "item_id": item_id,
             "embedding": emb.tolist()
         })
     
-    with open(cosmos_path, "w", encoding="utf-8") as f:
-        json.dump(cosmos_data, f, ensure_ascii=False)
-    print(f"[✓] Saved item embeddings (Cosmos DB JSON format) → {cosmos_path}")
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(json_data, f, ensure_ascii=False)
+    print(f"[✓] Saved item embeddings (Standard JSON format) → {json_path}")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
