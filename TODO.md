@@ -71,17 +71,63 @@
 
 ### Nhiệm vụ 3.1: Xây dựng GCN Encoder
 
-- [ ] Định nghĩa `torch.nn.Module` dùng `GCNConv` bọc trong `to_hetero`
-- [ ] Triển khai kiến trúc **2 tầng** với `hidden_channels` giống hệt GraphSAGE (để kiểm soát parameter counts)
+- [x] Định nghĩa `torch.nn.Module` dùng `GCNConv` bọc trong `to_hetero`
+- [x] Triển khai kiến trúc **2 tầng** với `hidden_channels` giống hệt GraphSAGE (để kiểm soát parameter counts)
 
 ### Nhiệm vụ 3.2: Vòng lặp huấn luyện GCN
 
-- [ ] Khởi tạo GCN encoder + Edge Decoder
-- [ ] Khởi tạo `BCEWithLogitsLoss` và `Adam` optimizer
-- [ ] Thực hiện training loop trên training topology đã cung cấp
+- [x] Khởi tạo GCN encoder + Edge Decoder
+- [x] Khởi tạo `BCEWithLogitsLoss` và `Adam` optimizer
+- [x] Thực hiện training loop trên training topology đã cung cấp
 
 ### Nhiệm vụ 3.3: Kiểm chứng các hạn chế Transductive
 
-- [ ] Áp dụng `torch.no_grad()` và chuyển model sang `eval()`
-- [ ] Thử nghiệm forward pass trên cùng validation/test `HeteroData` subgraph của Thành viên 2
-- [ ] Ghi lại: structural dimension mismatches, OOM errors, hoặc embedding errors để chứng minh hạn chế của GCN's symmetric normalization matrix trên isolated/unseen subgraphs
+- [x] Áp dụng `torch.no_grad()` và chuyển model sang `eval()`
+- [x] Thử nghiệm forward pass trên cùng validation/test `HeteroData` subgraph của Thành viên 2
+- [x] Ghi lại: structural dimension mismatches, OOM errors, hoặc embedding errors để chứng minh hạn chế của GCN's symmetric normalization matrix trên isolated/unseen subgraphs
+
+---
+
+## Phase 4: Cloud Service Architecture (Global Knowledge)
+
+### Nhiệm vụ 4.1: Trích xuất Cloud Artifacts
+- [ ] Export `Item` embeddings (`[num_items, hidden_channels]`) từ GraphSAGE checkpoint đã huấn luyện (`graphsage_link_pred.pt`).
+- [ ] Trích xuất trọng số (weights/biases) của các `SAGEConv` layers thuộc nhánh User.
+- [ ] Lưu trữ item embeddings dưới dạng memory-mapped array hoặc file cấu trúc (e.g., `NumPy` `.npy`, `HDF5`) để tối ưu tốc độ truy vấn (O(1) lookup).
+
+### Nhiệm vụ 4.2: Xây dựng FastAPI Global Server
+- [ ] Khởi tạo ứng dụng `FastAPI` đóng vai trò là Cloud Server.
+- [ ] Triển khai REST Endpoint `GET /api/v1/items/` nhận tham số là danh sách `item_ids`.
+- [ ] Trả về (serve) serialized dense embedding vectors tương ứng với requested items.
+- [ ] (Tùy chọn) Triển khai Endpoint `POST /api/v1/model/update` để nhận gradient updates từ devices (Federated Learning).
+
+---
+
+## Phase 5: Device Simulation & On-Device Inference (TFLite)
+
+### Nhiệm vụ 5.1: Subgraph Extraction & TFLite Conversion
+- [ ] Tách `Hidden Users` (từ inductive split) làm tập thiết bị (mobile clients) giả lập.
+- [ ] Lưu trữ local history (1-hop interactions của từng unseen user) thành các file JSON riêng biệt giả lập SQLite on-device storage.
+- [ ] Chuyển đổi mô hình (Model Conversion): Isolate nhánh User `SAGEConv` aggregator và `DotProductDecoder`.
+- [ ] Export PyTorch subgraph module sang **ONNX** → compile sang **TensorFlow Lite (`.tflite`)** để chạy trên mobile inference engine.
+
+### Nhiệm vụ 5.2: Simulated Local Inference Pipeline
+- [ ] Thiết lập Python script giả lập Device client sử dụng `tflite-runtime`.
+- [ ] **Step A:** Đọc local interaction history (Item IDs) từ file JSON.
+- [ ] **Step B:** Gửi HTTP request đến FastAPI Cloud để fetch các pre-trained item embeddings.
+- [ ] **Step C:** Feed embeddings vào local `.tflite` interpreter thực hiện neighborhood aggregation.
+- [ ] **Step D:** Tính toán offline dot-product logits để sinh ra ranked recommendation list (top-K items).
+
+---
+
+## Phase 6: System Demonstration & Evaluation (DCCL Requirements)
+
+### Nhiệm vụ 6.1: Bandwidth & Privacy Profiling
+- [ ] Viết script phân tích payload size (Bytes/Kilobytes).
+- [ ] So sánh kích thước truyền tải: Truyền raw interaction logs (Traditional Cloud) vs Truyền queried dense embeddings (DCCL).
+- [ ] Vẽ bar chart trực quan hóa **Bandwidth reduction** và chứng minh local privacy (raw interactions never leave the device).
+
+### Nhiệm vụ 6.2: Interactive Streamlit Dashboard
+- [ ] Xây dựng 2-panel UI bằng `Streamlit`.
+- [ ] **Left Panel (Device Context):** Hiển thị local history, API call log (chỉ gửi ID), và Top-K inference results chạy qua TFLite.
+- [ ] **Right Panel (Cloud Context):** Hiển thị server status, API throughput, và global graph architecture.
