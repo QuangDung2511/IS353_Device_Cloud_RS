@@ -21,6 +21,7 @@ import torch
 import torch.nn as nn
 from torch_geometric.nn import SAGEConv, HeteroConv, to_hetero
 from torch_geometric.data import HeteroData
+import torch_geometric.transforms as T
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -76,7 +77,7 @@ class GraphSAGELinkPredictor(nn.Module):
 # Core extraction logic
 # ──────────────────────────────────────────────────────────────────────────────
 
-def load_checkpoint(checkpoint_path: str, device: torch.device, hidden_channels: int, out_channels: int) -> nn.Module:
+def load_checkpoint(checkpoint_path: str, device: torch.device, hidden_channels: int, out_channels: int, data: HeteroData) -> nn.Module:
     """
     Load GraphSAGE model từ checkpoint .pt file.
 
@@ -88,18 +89,31 @@ def load_checkpoint(checkpoint_path: str, device: torch.device, hidden_channels:
     state = torch.load(checkpoint_path, map_location=device, weights_only=False)
 
     model = GraphSAGELinkPredictor(hidden_channels=hidden_channels, out_channels=out_channels)
+    model = model.to(device)
+    
+    # Thực hiện DUMMY FORWARD PASS để khởi tạo các Lazy Modules (SAGEConv(-1, -1))
+    model.eval()
+    with torch.no_grad():
+        x_dict = {node_type: data[node_type].x.to(device) for node_type in data.node_types}
+        edge_index_dict = {
+            edge_type: data[edge_type].edge_index.to(device)
+            for edge_type in data.edge_types
+        }
+        model.encode(x_dict, edge_index_dict)
 
     if isinstance(state, dict) and "encoder" in state:
         # Format notebook 06: lưu encoder và decoder riêng
         hparams = state.get("hparams", {})
         print(f"[INFO] Checkpoint format: notebook-06  hparams={hparams}")
-        # Ghép encoder + decoder state_dict thành 1
+        # Ghép encoder + decoder state_dict thành 1 và sửa lỗi lệch key format
         combined: dict[str, torch.Tensor] = {}
         for k, v in state["encoder"].items():
+            # Chỉ cần chuyển từ "convs1" sang "conv1" và "convs2" sang "conv2"
+            k = k.replace("convs1.", "conv1.").replace("convs2.", "conv2.")
             combined[f"encoder.{k}"] = v
         for k, v in state["decoder"].items():
             combined[f"decoder.{k}"] = v
-        model.load_state_dict(combined, strict=False)
+        model.load_state_dict(combined, strict=True)
 
     elif isinstance(state, dict) and "model_state_dict" in state:
         # Format: {"model_state_dict": ..., "epoch": ...}
@@ -120,12 +134,14 @@ def load_checkpoint(checkpoint_path: str, device: torch.device, hidden_channels:
         raise ValueError(f"Unrecognized checkpoint format: {type(state)}")
 
     result: nn.Module = model  # explicit annotation để Pylance không complain
-    return result.to(device)
+    return result
 
 
 def load_graph_data(data_path: str, device: torch.device) -> HeteroData:
     """Load HeteroData graph từ file .pt."""
     data = torch.load(data_path, map_location=device, weights_only=False)
+    # Thêm cạnh ngược (rev_reviews) bằng ToUndirected
+    data = T.ToUndirected()(data)
     print(f"[INFO] Loaded HeteroData: {data}")
     return data
 
@@ -207,13 +223,13 @@ def parse_args():
     parser.add_argument(
         "--hidden-channels",
         type=int,
-        default=64,
+        default=256,
         help="hidden_channels của model (phải khớp checkpoint)",
     )
     parser.add_argument(
         "--out-channels",
         type=int,
-        default=64,
+        default=256,
         help="out_channels của model (phải khớp checkpoint)",
     )
     parser.add_argument(
@@ -247,8 +263,8 @@ def main():
     print("Phase 4.1 — Trích xuất Cloud Artifacts")
     print(f"{'='*60}")
 
-    model = load_checkpoint(args.checkpoint, device, args.hidden_channels, args.out_channels)
     data  = load_graph_data(args.graph_data, device)
+    model = load_checkpoint(args.checkpoint, device, args.hidden_channels, args.out_channels, data)
 
     # Extract
     item_embeddings = extract_item_embeddings(model, data, device)

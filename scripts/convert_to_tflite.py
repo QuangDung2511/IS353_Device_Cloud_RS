@@ -49,12 +49,11 @@ import torch.nn as nn
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Hằng số — khớp notebook 06
+# Hằng số — khớp notebook 06 và Phase 4
 # ─────────────────────────────────────────────────────────────────────────────
-IN_CHANNELS     = 384
-HIDDEN_CHANNELS = 256
+IN_CHANNELS     = 256  # Sửa lại thành 256 vì Cloud trả về final embeddings (256-d)
+HIDDEN_CHANNELS = 256  # Không còn dùng tới
 OUT_CHANNELS    = 256
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ONNX-exportable On-Device Model
@@ -64,28 +63,27 @@ class FrozenUserSAGEDecoder(nn.Module):
     """
     Module thuần Linear, ONNX-friendly — không có scatter / dynamic index.
 
-    Mô phỏng 2-layer SAGEConv forward của nhánh (user, reviews, item):
-        Layer 1:  h1 = relu( lin_l1(user_x) + lin_r1(mean(neighbor_item_x)) )
-        Layer 2:  h2 =       lin_l2(h1)     + lin_r2(h1)     [self-loop only]
-        Decode:   logits = (h2 · candidate_emb).sum(dim=-1)
+    Sửa đổi cấu trúc: Vì thiết bị di động tải về các "dense embeddings" (256-d) 
+    từ Cloud cho các item đã tương tác, thiết bị sẽ chỉ chạy **Layer 2** của GraphSAGE 
+    để tính toán embedding cho User.
+    
+        Layer 2:  user_h2 = lin_l2(user_h1) + lin_r2(mean(item_h1))
+        Decode:   logits  = (user_h2 · candidate_emb).sum(dim=-1)
 
     Inputs (float32):
-        user_x        [1, 384]    — feature vector (zeros cho hidden/new user)
-        neighbor_x    [K, 384]    — item neighbor features từ cloud
-        candidate_emb [N, 256]    — pre-computed item embeddings (extract_embeddings.py)
+        user_x        [1, 256]    — feature vector (zeros cho hidden/new user)
+        neighbor_x    [K, 256]    — item pre-trained embeddings từ cloud (đóng vai trò item_h1)
+        candidate_emb [N, 256]    — pre-computed item embeddings cho candidate (từ cloud)
     Output:
         logits        [N]         — ranking scores, top-K → danh sách gợi ý
     """
 
     def __init__(self, in_ch: int, hidden_ch: int, out_ch: int):
         super().__init__()
-        # Layer 1 — (user, reviews, item) branch
-        # bias=True: checkpoint có lin_l.bias, lin_r không có bias (SAGEConv default)
-        self.lin_l1 = nn.Linear(in_ch,     hidden_ch, bias=True)   # self (has bias)
-        self.lin_r1 = nn.Linear(in_ch,     hidden_ch, bias=False)  # neighbor agg (no bias)
-        # Layer 2
-        self.lin_l2 = nn.Linear(hidden_ch, out_ch,    bias=True)   # self (has bias)
-        self.lin_r2 = nn.Linear(hidden_ch, out_ch,    bias=False)  # neighbor agg (no bias)
+        # Layer 2 — (item, rev_reviews, user) branch
+        # Dùng để cập nhật user từ item neighbors
+        self.lin_l = nn.Linear(in_ch, out_ch, bias=True)   # self (has bias)
+        self.lin_r = nn.Linear(in_ch, out_ch, bias=False)  # neighbor agg (no bias)
 
     def forward(
         self,
@@ -93,16 +91,15 @@ class FrozenUserSAGEDecoder(nn.Module):
         neighbor_x:    torch.Tensor,   # [K, in_ch]
         candidate_emb: torch.Tensor,   # [N, out_ch]
     ) -> torch.Tensor:
-        # Layer 1: mean-aggregate item neighbors
-        aggr1  = neighbor_x.mean(dim=0, keepdim=True)               # [1, in_ch]
-        h1     = self.lin_l1(user_x) + self.lin_r1(aggr1)           # [1, hidden_ch]
-        h1     = torch.relu(h1)
-
-        # Layer 2: self-loop (neighbors đã được encode ở layer 1)
-        h2     = self.lin_l2(h1) + self.lin_r2(h1)                  # [1, out_ch]
+        # Neighbor aggregation (tính trung bình các item embeddings)
+        aggr = neighbor_x.mean(dim=0, keepdim=True)         # [1, in_ch]
+        
+        # Layer 2: cập nhật user
+        h2 = self.lin_l(user_x) + self.lin_r(aggr)          # [1, out_ch]
+        # Không có ReLU sau Layer 2 (theo cấu trúc HeteroSAGEEncoder trong bài)
 
         # DotProduct decoder
-        logits = (h2 * candidate_emb).sum(dim=-1)                   # [N]
+        logits = (h2 * candidate_emb).sum(dim=-1)           # [N]
         return logits
 
 
@@ -113,12 +110,7 @@ class FrozenUserSAGEDecoder(nn.Module):
 def transplant_weights(model: FrozenUserSAGEDecoder, ckpt_path: str) -> dict:
     """
     Trích xuất weights SAGEConv từ checkpoint notebook 06 sang FrozenUserSAGEDecoder.
-
-    Checkpoint encoder state_dict keys (user branch):
-        convs1.convs.user__reviews__item.lin_l.weight   [256, 384]
-        convs1.convs.user__reviews__item.lin_r.weight   [256, 384]
-        convs2.convs.user__reviews__item.lin_l.weight   [256, 256]
-        convs2.convs.user__reviews__item.lin_r.weight   [256, 256]
+    Lưu ý: Để cập nhật User, ta phải dùng nhánh <item___rev_reviews___user>.
     """
     pack      = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     enc_state = pack["encoder"]
@@ -127,18 +119,15 @@ def transplant_weights(model: FrozenUserSAGEDecoder, ckpt_path: str) -> dict:
     print("[INFO] Checkpoint hparams:", hparams)
     print("[INFO] Relevant encoder keys:")
     for k, v in enc_state.items():
-        if "reviews" in k:
+        if "rev_reviews" in k:
             print(f"       {k}  {tuple(v.shape)}")
 
     # src key (checkpoint) → dst key (FrozenUserSAGEDecoder)
     key_map = {
-        # Checkpoint thực tế dùng format: <user___reviews___item> (dấu <>, triple underscore)
-        "convs1.convs.<user___reviews___item>.lin_l.weight": "lin_l1.weight",
-        "convs1.convs.<user___reviews___item>.lin_l.bias":   "lin_l1.bias",
-        "convs1.convs.<user___reviews___item>.lin_r.weight": "lin_r1.weight",
-        "convs2.convs.<user___reviews___item>.lin_l.weight": "lin_l2.weight",
-        "convs2.convs.<user___reviews___item>.lin_l.bias":   "lin_l2.bias",
-        "convs2.convs.<user___reviews___item>.lin_r.weight": "lin_r2.weight",
+        # Checkpoint thực tế dùng format: <item___rev_reviews___user>
+        "convs2.convs.<item___rev_reviews___user>.lin_l.weight": "lin_l.weight",
+        "convs2.convs.<item___rev_reviews___user>.lin_l.bias":   "lin_l.bias",
+        "convs2.convs.<item___rev_reviews___user>.lin_r.weight": "lin_r.weight",
     }
 
     new_state   = model.state_dict()
@@ -214,6 +203,7 @@ def export_onnx(
         },
         opset_version=17,
         do_constant_folding=True,
+        dynamo=False,
     )
 
     import onnx
