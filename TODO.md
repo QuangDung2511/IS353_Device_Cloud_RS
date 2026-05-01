@@ -106,17 +106,17 @@
 ## Phase 5: Device Simulation & On-Device Inference (TFLite)
 
 ### Nhiệm vụ 5.1: Subgraph Extraction & TFLite Conversion
-- [ ] Tách `Hidden Users` (từ inductive split) làm tập thiết bị (mobile clients) giả lập.
-- [ ] Lưu trữ local history (1-hop interactions của từng unseen user) thành các file JSON riêng biệt giả lập SQLite on-device storage.
-- [ ] Chuyển đổi mô hình (Model Conversion): Isolate nhánh User `SAGEConv` aggregator và `DotProductDecoder`.
-- [ ] Export PyTorch subgraph module sang **ONNX** → compile sang **TensorFlow Lite (`.tflite`)** để chạy trên mobile inference engine.
+- [x] Tách `Hidden Users` (từ inductive split) làm tập thiết bị (mobile clients) giả lập.
+- [x] Lưu trữ local history (1-hop interactions của từng unseen user) thành các file JSON riêng biệt giả lập SQLite on-device storage.
+- [x] Chuyển đổi mô hình (Model Conversion): Isolate nhánh User `SAGEConv` aggregator và `DotProductDecoder`.
+- [x] Export PyTorch subgraph module sang **ONNX** → compile sang **TensorFlow Lite (`.tflite`)** để chạy trên mobile inference engine.
 
 ### Nhiệm vụ 5.2: Simulated Local Inference Pipeline
-- [ ] Thiết lập Python script giả lập Device client sử dụng `tflite-runtime`.
-- [ ] **Step A:** Đọc local interaction history (Item IDs) từ file JSON.
-- [ ] **Step B:** Gửi HTTP request đến FastAPI Cloud để fetch các pre-trained item embeddings.
-- [ ] **Step C:** Feed embeddings vào local `.tflite` interpreter thực hiện neighborhood aggregation.
-- [ ] **Step D:** Tính toán offline dot-product logits để sinh ra ranked recommendation list (top-K items).
+- [x] Thiết lập Python script giả lập Device client sử dụng `tflite-runtime`.
+- [x] **Step A:** Đọc local interaction history (Item IDs) từ file JSON.
+- [x] **Step B:** Gửi HTTP request đến FastAPI Cloud để fetch các pre-trained item embeddings.
+- [x] **Step C:** Feed embeddings vào local `.tflite` interpreter thực hiện neighborhood aggregation.
+- [x] **Step D:** Tính toán offline dot-product logits để sinh ra ranked recommendation list (top-K items).
 
 ---
 
