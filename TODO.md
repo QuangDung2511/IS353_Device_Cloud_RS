@@ -91,14 +91,14 @@
 ## Phase 4: Cloud Service Architecture (Global Knowledge)
 
 ### Nhiệm vụ 4.1: Trích xuất Cloud Artifacts
-- [ ] Export `Item` embeddings (`[num_items, hidden_channels]`) từ GraphSAGE checkpoint đã huấn luyện (`graphsage_link_pred.pt`).
-- [ ] Trích xuất trọng số (weights/biases) của các `SAGEConv` layers thuộc nhánh User.
-- [ ] Lưu trữ item embeddings dưới dạng memory-mapped array hoặc file cấu trúc (e.g., `NumPy` `.npy`, `HDF5`) để tối ưu tốc độ truy vấn (O(1) lookup).
+- [x] Export `Item` embeddings (`[num_items, hidden_channels]`) từ GraphSAGE checkpoint đã huấn luyện (`graphsage_link_pred.pt`).
+- [x] Trích xuất trọng số (weights/biases) của các `SAGEConv` layers thuộc nhánh User.
+- [x] Lưu trữ item embeddings dưới dạng memory-mapped array hoặc file cấu trúc (e.g., `NumPy` `.npy`, `HDF5`) để tối ưu tốc độ truy vấn (O(1) lookup).
 
 ### Nhiệm vụ 4.2: Xây dựng FastAPI Global Server
-- [ ] Khởi tạo ứng dụng `FastAPI` đóng vai trò là Cloud Server.
-- [ ] Triển khai REST Endpoint `GET /api/v1/items/` nhận tham số là danh sách `item_ids`.
-- [ ] Trả về (serve) serialized dense embedding vectors tương ứng với requested items.
+- [x] Khởi tạo ứng dụng `FastAPI` đóng vai trò là Cloud Server.
+- [x] Triển khai REST Endpoint `GET /api/v1/items/` nhận tham số là danh sách `item_ids`.
+- [x] Trả về (serve) serialized dense embedding vectors tương ứng với requested items.
 - [ ] (Tùy chọn) Triển khai Endpoint `POST /api/v1/model/update` để nhận gradient updates từ devices (Federated Learning).
 
 ---

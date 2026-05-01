@@ -9,8 +9,18 @@ from typing import Optional
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, Query
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="DCCL Cloud Server", version="0.1.0")
+def _load_embeddings_sync():
+    # Helper to call the existing load function from lifespan
+    _load_embeddings()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _load_embeddings_sync()
+    yield
+
+app = FastAPI(title="DCCL Cloud Server", version="0.1.0", lifespan=lifespan)
 
 ARTIFACT_DIR = Path(__file__).resolve().parent / "artifacts"
 NPY_PATH = ARTIFACT_DIR / "item_embeddings.npy"
@@ -69,9 +79,7 @@ def _parse_item_ids(raw_ids: list[str]) -> list[int]:
     return parsed
 
 
-@app.on_event("startup")
-def startup_load_embeddings() -> None:
-    _load_embeddings()
+# The startup event has been replaced by the lifespan context manager above.
 
 
 @app.get("/health")
@@ -87,7 +95,7 @@ def health() -> dict:
     }
 
 
-@app.get("/api/v1/items")
+@app.get("/api/v1/items/")
 def get_item_embeddings(
     item_ids: list[str] = Query(..., description="Item IDs (repeat or comma-separated)"),
     strict: bool = Query(False, description="Return 404 if any item_id is invalid"),
