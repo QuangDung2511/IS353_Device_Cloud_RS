@@ -45,7 +45,7 @@ class DeviceClient:
             
         return data.get("history", [])
 
-    def recommend(self, candidate_item_ids: List[int], top_k: int = 5) -> List[Tuple[int, float]]:
+    def recommend(self, top_k: int = 5) -> List[Tuple[int, float]]:
         """
         Executes the DCCL Phase 5 inference pipeline.
         Returns a list of (item_id, score) tuples.
@@ -53,41 +53,46 @@ class DeviceClient:
         # Step A: Read local history
         history_item_ids = self._read_local_history()
         
-        # Step B: Fetch embeddings from Cloud
-        all_ids_to_fetch = list(set(history_item_ids + candidate_item_ids))
-        if not all_ids_to_fetch:
-            return []
+        # Format history param
+        history_param = ",".join(map(str, history_item_ids)) if history_item_ids else ""
+        
+        # Step B.1: Fetch history embeddings (Neighbors)
+        neighbor_embs = []
+        if history_item_ids:
+            params = {"item_ids": history_param}
+            response = requests.get(f"{self.cloud_api_url}/api/v1/items/", params=params)
+            response.raise_for_status()
             
-        params = {"item_ids": ",".join(map(str, all_ids_to_fetch))}
-        response = requests.get(f"{self.cloud_api_url}/api/v1/items/", params=params)
-        response.raise_for_status()
-        
-        data = response.json()
-        fetched_ids = data.get("item_ids", [])
-        fetched_embeddings = data.get("embeddings", [])
-        
-        # Map item_id -> embedding
-        emb_map = {
-            int(iid): np.array(emb, dtype=np.float32) 
-            for iid, emb in zip(fetched_ids, fetched_embeddings)
-        }
-        
-        # Separate neighbors (history) from candidates
-        neighbor_embs = [emb_map[iid] for iid in history_item_ids if iid in emb_map]
-        valid_candidate_ids = [iid for iid in candidate_item_ids if iid in emb_map]
-        candidate_embs = [emb_map[iid] for iid in valid_candidate_ids]
-        
-        if not valid_candidate_ids:
-            return []
+            data = response.json()
+            fetched_ids = data.get("item_ids", [])
+            fetched_embeddings = data.get("embeddings", [])
+            
+            emb_map = {
+                int(iid): np.array(emb, dtype=np.float32) 
+                for iid, emb in zip(fetched_ids, fetched_embeddings)
+            }
+            neighbor_embs = [emb_map[iid] for iid in history_item_ids if iid in emb_map]
             
         if not neighbor_embs:
             # Fallback if no history: provide a zero vector
             neighbor_embs = [np.zeros(self.in_channels, dtype=np.float32)]
             
+        # Step B.2: Fetch smart Candidates
+        cand_params = {"history_item_ids": history_param, "target_k": 50}
+        cand_response = requests.get(f"{self.cloud_api_url}/api/v1/candidates/", params=cand_params)
+        cand_response.raise_for_status()
+        
+        cand_data = cand_response.json()
+        candidate_item_ids = cand_data.get("candidate_ids", [])
+        candidate_embs_list = cand_data.get("embeddings", [])
+        
+        if not candidate_item_ids:
+            return []
+            
         # Prepare inputs for TFLite
         user_x = np.zeros((1, self.in_channels), dtype=np.float32)
         neighbor_x = np.stack(neighbor_embs).astype(np.float32)
-        candidate_emb = np.stack(candidate_embs).astype(np.float32)
+        candidate_emb = np.array(candidate_embs_list, dtype=np.float32)
         
         K = neighbor_x.shape[0]
         N = candidate_emb.shape[0]
@@ -124,7 +129,7 @@ class DeviceClient:
         top_indices = np.argsort(logits)[::-1][:top_k]
         
         results = [
-            (valid_candidate_ids[idx], float(logits[idx]))
+            (candidate_item_ids[idx], float(logits[idx]))
             for idx in top_indices
         ]
         
@@ -149,10 +154,6 @@ if __name__ == "__main__":
     with open(item_map_path, "r", encoding="utf-8") as f:
         item_mapping = json.load(f)
         
-    all_item_ids = list(item_mapping.values())
-    # Randomly sample 50 candidate items to rank
-    candidates = random.sample(all_item_ids, k=min(50, len(all_item_ids)))
-    
     client = DeviceClient(
         user_id=args.user_id,
         local_storage_dir=str(storage_dir),
@@ -161,10 +162,10 @@ if __name__ == "__main__":
     )
     
     print(f"Running on-device inference for User: {args.user_id}...")
-    print(f"Evaluating {len(candidates)} real candidate items...")
+    print(f"Retrieving smart candidates from Cloud...")
     
     try:
-        recommendations = client.recommend(candidate_item_ids=candidates, top_k=5)
+        recommendations = client.recommend(top_k=5)
         print("\nTop 5 Recommendations:")
         for rank, (item_id, score) in enumerate(recommendations, 1):
             # Reverse lookup the item string ID for better readability

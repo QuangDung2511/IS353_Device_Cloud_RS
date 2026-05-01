@@ -11,6 +11,8 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Query
 from contextlib import asynccontextmanager
 
+from cloud_server.retrieval import load_graph_data, get_item_neighbors, get_popular_fallback
+
 def _load_embeddings_sync():
     # Helper to call the existing load function from lifespan
     _load_embeddings()
@@ -18,6 +20,7 @@ def _load_embeddings_sync():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _load_embeddings_sync()
+    load_graph_data()
     yield
 
 app = FastAPI(title="DCCL Cloud Server", version="0.1.0", lifespan=lifespan)
@@ -123,6 +126,73 @@ def get_item_embeddings(
         "item_ids": valid,
         "embeddings": vectors,
         "missing_ids": missing,
+        "dim": int(_embeddings.shape[1]) if _embeddings.ndim > 1 else 0,
+    }
+
+@app.get("/api/v1/candidates/")
+def retrieve_candidates(
+    history_item_ids: list[str] = Query(..., description="User's local interaction history"),
+    target_k: int = Query(50, description="Total number of candidates to return")
+) -> dict:
+    if _embeddings is None:
+        raise HTTPException(status_code=503, detail="Embeddings not loaded")
+
+    try:
+        history_ids = _parse_item_ids(history_item_ids)
+    except HTTPException:
+        history_ids = []
+
+    history_set = set(history_ids)
+    candidates = []
+    
+    # Validation
+    max_index = _embeddings.shape[0] - 1
+    valid_history = [i for i in history_ids if 0 <= i <= max_index]
+
+    if valid_history:
+        # Prong 1: Graph Search
+        graph_neighbors = get_item_neighbors(valid_history, max_neighbors=20)
+        candidates.extend(graph_neighbors)
+        
+        # Prong 2: Vector Similarity
+        # Compute mean embedding of history
+        history_embs = _embeddings[valid_history]
+        mean_emb = np.mean(history_embs, axis=0)
+        
+        # Compute cosine similarity (dot product since embeddings should be close to normalized)
+        scores = np.dot(_embeddings, mean_emb)
+        top_indices = np.argsort(scores)[::-1][:40] # Grab extra in case of overlaps
+        
+        vector_neighbors = [int(i) for i in top_indices]
+        candidates.extend(vector_neighbors)
+
+    # Deduplicate and remove history items
+    unique_candidates = []
+    seen = set(history_set) # Exclude items user already clicked
+    
+    for c in candidates:
+        if c not in seen and 0 <= c <= max_index:
+            unique_candidates.append(c)
+            seen.add(c)
+            
+        if len(unique_candidates) >= target_k:
+            break
+
+    # Prong 3: Popularity Fallback (if we still need more items)
+    if len(unique_candidates) < target_k:
+        needed = target_k - len(unique_candidates)
+        fallbacks = get_popular_fallback(seen, count=needed)
+        unique_candidates.extend(fallbacks)
+
+    # Final slice to exact target_k (just in case)
+    final_candidates = unique_candidates[:target_k]
+    
+    # Extract embeddings for the final candidates
+    final_embeddings = _embeddings[final_candidates].tolist() if final_candidates else []
+
+    return {
+        "candidate_ids": final_candidates,
+        "embeddings": final_embeddings,
         "dim": int(_embeddings.shape[1]) if _embeddings.ndim > 1 else 0,
     }
 

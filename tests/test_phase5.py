@@ -85,15 +85,26 @@ def test_tflite_model_exists():
 def test_device_client_inference(mock_get):
     model_path = PROJECT_ROOT / "device_client" / "models" / "user_sage_decoder.tflite"
     
-    # Mock Cloud API response
-    mock_response = mock.Mock()
-    mock_response.json.return_value = {
-        "item_ids": [100, 101, 200, 201],
-        "embeddings": np.random.randn(4, 256).tolist(),
-        "dim": 256
-    }
-    mock_response.raise_for_status = mock.Mock()
-    mock_get.return_value = mock_response
+    # Mock Cloud API response for both history embeddings and candidate generation
+    def mock_requests_get(*args, **kwargs):
+        mock_response = mock.Mock()
+        url = args[0]
+        if "/api/v1/items/" in url:
+            mock_response.json.return_value = {
+                "item_ids": [1], # Mocking history
+                "embeddings": np.random.randn(1, 256).tolist(),
+                "dim": 256
+            }
+        elif "/api/v1/candidates/" in url:
+            mock_response.json.return_value = {
+                "candidate_ids": [200, 201],
+                "embeddings": np.random.randn(2, 256).tolist(),
+                "dim": 256
+            }
+        mock_response.raise_for_status = mock.Mock()
+        return mock_response
+        
+    mock_get.side_effect = mock_requests_get
     
     # Init client for userA
     client = DeviceClient(
@@ -103,13 +114,12 @@ def test_device_client_inference(mock_get):
         cloud_api_url="http://mock-cloud"
     )
     
-    candidates = [200, 201]
-    recommendations = client.recommend(candidate_item_ids=candidates, top_k=2)
+    recommendations = client.recommend(top_k=2)
     
     # Verification
-    mock_get.assert_called_once()
+    assert mock_get.call_count == 2
     assert len(recommendations) == 2
     assert isinstance(recommendations[0], tuple)
-    assert recommendations[0][0] in candidates
+    assert recommendations[0][0] in [200, 201]
     # Scores should be floats
     assert isinstance(recommendations[0][1], float)
