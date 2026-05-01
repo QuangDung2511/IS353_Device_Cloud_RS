@@ -11,7 +11,12 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Query
 from contextlib import asynccontextmanager
 
-from cloud_server.retrieval import load_graph_data, get_item_neighbors, get_popular_fallback
+try:
+    # Works when service is started from repository root.
+    from cloud_server.retrieval import load_graph_data, get_item_neighbors, get_popular_fallback
+except ModuleNotFoundError:
+    # Works when deploy root is cloud_server on Render.
+    from retrieval import load_graph_data, get_item_neighbors, get_popular_fallback
 
 def _load_embeddings_sync():
     # Helper to call the existing load function from lifespan
