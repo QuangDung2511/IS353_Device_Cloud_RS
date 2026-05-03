@@ -1,5 +1,4 @@
 fastapi>=0.111
 uvicorn[standard]>=0.30
-numpy>=1.23
-torch
-tensorflow
+numpy>=1.26,<3
+torch>=2.2
