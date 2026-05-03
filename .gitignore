@@ -26,3 +26,5 @@ Thumbs.db
 
 # Tests
 tests/
+.claude/
+.agents/

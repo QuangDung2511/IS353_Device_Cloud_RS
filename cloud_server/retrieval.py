@@ -3,8 +3,6 @@ from collections import defaultdict
 from pathlib import Path
 from typing import List, Dict, Set
 
-import torch
-
 # Paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 EDGE_INDEX_PATH = PROJECT_ROOT / "data" / "processed" / "item_item_edge_index.pt"
@@ -12,18 +10,25 @@ EDGE_INDEX_PATH = PROJECT_ROOT / "data" / "processed" / "item_item_edge_index.pt
 # In-memory graph structures
 _adjacency_list: Dict[int, Set[int]] = defaultdict(set)
 _popular_fallback: List[int] = []
+_loaded = False
 
 def load_graph_data() -> None:
     """
     Loads the item-item edge index, builds the adjacency list,
     and computes the globally popular fallback items based on node degree.
     """
-    global _adjacency_list, _popular_fallback
+    global _adjacency_list, _popular_fallback, _loaded
+
+    if _loaded:
+        return
     
     if not EDGE_INDEX_PATH.exists():
         print(f"[WARN] Edge index not found at {EDGE_INDEX_PATH}. Graph retrieval will be empty.")
+        _loaded = True
         return
-        
+
+    import torch
+
     print(f"Loading item-item graph from {EDGE_INDEX_PATH}...")
     edge_index = torch.load(EDGE_INDEX_PATH, map_location="cpu", weights_only=False)
     
@@ -47,6 +52,7 @@ def load_graph_data() -> None:
     
     _popular_fallback = [item for item, degree in degrees[:100]]
     print(f"Cached Top 100 popular items for fallback.")
+    _loaded = True
 
 def get_item_neighbors(item_ids: List[int], max_neighbors: int = 20) -> List[int]:
     """Prong 1: Graph Search (1-hop neighbors)"""
