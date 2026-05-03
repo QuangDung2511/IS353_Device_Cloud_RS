@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import numpy as np
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from cloud_server.retrieval import (
@@ -462,6 +462,11 @@ def health() -> dict:
         "items": int(_embeddings.shape[0]),
         "dim": int(_embeddings.shape[1]) if _embeddings.ndim > 1 else 0,
     }
+
+
+@app.head("/healthz", include_in_schema=False)
+def healthz_head():
+    return Response(status_code=200)
 
 
 @app.get("/api/v1/items/")
