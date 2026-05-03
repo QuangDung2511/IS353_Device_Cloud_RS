@@ -23,3 +23,5 @@ tensorflow
 # Data processing formats (based on existing clean_meta.parquet)
 pyarrow
 fastparquet
+networkx
+matplotlib
