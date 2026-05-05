@@ -26,5 +26,21 @@ Thumbs.db
 
 # Tests
 tests/
+
 .claude/
 .agents/
+
+# LaTeX artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.pdf
+
+# Specific Documentation
+docs/DCCL_ARCHITECTURE.md

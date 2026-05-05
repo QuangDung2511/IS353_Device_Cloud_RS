@@ -1,0 +1,69 @@
+\chapter{GIỚI THIỆU}
+
+\section{Lý do chọn đề tài}
+
+Trong kỷ nguyên số hiện nay, sự bùng nổ của các nền tảng thương mại điện tử và mạng xã hội đã dẫn đến sự quá tải thông tin đối với người tiêu dùng. Hệ thống khuyến nghị (Recommender Systems - RS) đã trở thành một thành phần không thể thiếu, đóng vai trò quan trọng trong việc cá nhân hóa trải nghiệm và hỗ trợ người dùng tìm kiếm sản phẩm, dịch vụ phù hợp giữa hàng triệu lựa chọn. Tuy nhiên, các hệ thống khuyến nghị truyền thống dựa trên kiến trúc tập trung (Cloud-Centric) đang đối mặt với ba thách thức lớn:
+
+\begin{itemize}
+    \item \textbf{Rủi ro về quyền riêng tư (Privacy Risks):} Việc tải toàn bộ nhật ký hành vi thô của người dùng (như click, view, mua sắm) lên máy chủ đám mây tiềm ẩn nguy cơ rò rỉ thông tin cá nhân nhạy cảm, gây lo ngại lớn trong bối cảnh các quy định về bảo vệ dữ liệu (như GDPR) ngày càng thắt chặt.
+    \item \textbf{Độ trễ và khả năng thích ứng thời gian thực (Latency \& Real-time Adaptivity):} Các mô hình tập trung thường gặp khó khăn trong việc cập nhật tức thời sự thay đổi trong sở thích người dùng do độ trễ truyền tải dữ liệu và thời gian xử lý tại server, làm giảm hiệu quả của các khuyến nghị mang tính ngữ cảnh.
+    \item \textbf{Chi phí truyền tải và tài nguyên (Transmission Overhead):} Việc liên tục gửi luồng dữ liệu tương tác khổng lồ từ hàng triệu thiết bị đầu cuối lên đám mây tiêu tốn băng thông cực lớn cho cả nhà cung cấp dịch vụ và người dùng.
+\end{itemize}
+
+Sự phát triển mạnh mẽ của phần cứng trên các thiết bị di động thông minh đã mở ra một hướng đi mới: tính toán trực tiếp trên thiết bị (On-device Computing). Tuy nhiên, các thiết bị di động lại bị giới hạn về bộ nhớ và khả năng lưu trữ đồ thị toàn cục (Global Graph) với hàng tỷ nút và cạnh.
+
+Từ bối cảnh đó, kiến trúc \textbf{Device-Cloud Collaborative Learning (DCCL)} kết hợp với \textbf{Graph Neural Networks (GNN)} nổi lên như một giải pháp đột phá. Cơ chế này cho phép phân tách mô hình: đám mây lưu trữ tri thức toàn cục và học các đặc trưng chung, trong khi thiết bị thực hiện tính toán trên đồ thị con cục bộ (Local Subgraph) để cá nhân hóa kết quả. Việc chỉ truyền tải các vector nhúng (embeddings) thay vì dữ liệu thô không chỉ bảo vệ quyền riêng tư mà còn tối ưu hóa băng thông đáng kể. Vì những lý do trên, nhóm quyết định thực hiện đề tài \textbf{"Device-Cloud Collaborative Learning for Graph Neural Networks in Personalized Recommendation Systems"} nhằm nghiên cứu và hiện thực hóa một hệ thống khuyến nghị hiện đại, hiệu quả và an toàn.
+
+\section{Mục tiêu đề tài}
+
+Mục tiêu chính của đề tài là xây dựng một hệ thống khuyến nghị cá nhân hóa dựa trên kiến trúc học hợp tác thiết bị - đám mây (DCCL) và mạng nơ-ron đồ thị (GNN), nhằm tối ưu hóa sự cân bằng giữa tính chính xác, quyền riêng tư và hiệu quả tài nguyên. Cụ thể, đề tài hướng tới các mục tiêu chi tiết sau:
+
+\begin{enumerate}
+    \item \textbf{Nghiên cứu lý thuyết:} Hệ thống hóa các kiến thức nền tảng về mạng nơ-ron đồ thị (Graph Neural Networks), đặc biệt là thuật toán GraphSAGE với khả năng học quy nạp (inductive learning). Nghiên cứu cơ chế phối hợp giữa thiết bị và đám mây (DCCL) trong các hệ thống học máy hiện đại.
+    \item \textbf{Phân tích các nghiên cứu liên quan:} Tìm hiểu, tổng hợp và đánh giá các giải pháp kỹ thuật đã được đề xuất bởi các tác giả khác trong lĩnh vực khuyến nghị trên thiết bị (on-device recommendation) và học hợp tác, từ đó rút ra các ưu điểm và hạn chế để định hình hướng tiếp cận cho đề tài.
+    \item \textbf{Xây dựng và hiện thực hệ thống:} 
+    \begin{itemize}
+        \item \textbf{Phía Đám mây (Cloud):} Thiết kế và huấn luyện mô hình GNN trên đồ thị dị nhất (Heterogeneous Graph) để học các đặc trưng toàn cục (Global Knowledge) và sinh ra các vector nhúng (embeddings) chất lượng cao cho các sản phẩm.
+        \item \textbf{Phía Thiết bị (Device):} Hiện thực luồng xử lý trên đồ thị con cục bộ (Local Subgraph). Chuyển đổi và tối ưu hóa mô hình ranking sang định dạng TensorFlow Lite để thực hiện suy luận trực tiếp trên thiết bị với độ trễ thấp.
+    \end{itemize}
+    \item \textbf{Thực nghiệm và Đánh giá:} Triển khai thực nghiệm trên tập dữ liệu Amazon Product Data (nhóm hàng Software - 5-core) để đo lường hiệu năng của hệ thống thông qua các chỉ số tiêu chuẩn như Precision, Recall, NDCG và Hit Rate. Đồng thời, phân tích định lượng về sự tiết kiệm băng thông và khả năng bảo vệ quyền riêng tư của kiến trúc DCCL so với kiến trúc tập trung truyền thống.
+\end{enumerate}
+
+\section{Phạm vi nghiên cứu}
+
+Đề tài tập trung vào việc nghiên cứu và hiện thực hóa mô hình khuyến nghị trong phạm vi cụ thể như sau:
+
+\begin{itemize}
+    \item \textbf{Bài toán nghiên cứu:} Tập trung vào bài toán dự đoán liên kết (Link Prediction) trong hệ thống khuyến nghị thương mại điện tử, cụ thể là dự đoán khả năng tương tác giữa người dùng và sản phẩm dựa trên lịch sử hành vi.
+    \item \textbf{Dữ liệu thực nghiệm:} Sử dụng tập dữ liệu Amazon Product Data (ngành hàng Software), phiên bản 5-core (tập con mà tất cả người dùng và sản phẩm đều có ít nhất 5 đánh giá). Dữ liệu bao gồm hai thành phần chính: dữ liệu đánh giá của người dùng (Reviews) và thông tin siêu dữ liệu của sản phẩm (Metadata).
+    \item \textbf{Công nghệ và Framework:}
+    \begin{itemize}
+        \item Xây dựng và huấn luyện mô hình đồ thị dị nhất (Heterogeneous Graph) bằng thư viện PyTorch Geometric (PyG) trên môi trường điện toán đám mây giả lập.
+        \item Sử dụng mô hình GraphSAGE với cơ chế lấy mẫu láng giềng (Neighbor Sampling) để đảm bảo tính quy nạp và khả năng mở rộng.
+        \item Triển khai mô hình ranking trên thiết bị bằng framework TensorFlow Lite (TFLite) để mô phỏng quá trình suy luận cục bộ.
+    \end{itemize}
+    \item \textbf{Giới hạn đề tài:} Đề tài tập trung vào việc thiết kế kiến trúc phần mềm, quy trình xử lý dữ liệu và đánh giá hiệu năng thuật toán thông qua mô phỏng. Việc triển khai thực tế trên các phần cứng di động vật lý (như smartphone Android/iOS) và các vấn đề về tối ưu hóa mức tiêu thụ năng lượng pin nằm ngoài phạm vi nghiên cứu của báo cáo này.
+\end{itemize}
+
+\section{Cấu trúc báo cáo}
+% TODO: Mô tả ngắn gọn nội dung của từng chương trong báo cáo.
+% Gợi ý (cấu trúc 5 chương):
+Báo cáo được tổ chức thành các chương như sau:
+
+\begin{itemize}
+    \item \textbf{Chương 1 - Giới thiệu:} Trình bày lý do chọn đề tài, mục tiêu
+    nghiên cứu và phạm vi thực hiện.
+
+    \item \textbf{Chương 2 - Nền tảng lý thuyết:} Giới thiệu các khái niệm và
+    kỹ thuật nền tảng, bao gồm Hệ thống khuyến nghị, Graph Neural Networks,
+    GraphSAGE và cơ chế Device-Cloud Collaborative Learning.
+
+    \item \textbf{Chương 3 - Các nghiên cứu liên quan:} Khảo sát và đánh giá
+    các công trình nghiên cứu tiêu biểu về khuyến nghị theo hướng DCCL và GNN.
+
+    \item \textbf{Chương 4 - Thực nghiệm:} Mô tả dữ liệu, kiến trúc hệ thống,
+    thiết lập thực nghiệm và trình bày kết quả đánh giá.
+
+    \item \textbf{Chương 5 - Kết luận:} Tóm tắt kết quả, nêu ưu nhược điểm và
+    định hướng phát triển tương lai.
+\end{itemize}

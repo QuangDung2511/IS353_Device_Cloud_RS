@@ -1,0 +1,109 @@
+\chapter{CÁC NGHIÊN CỨU LIÊN QUAN}
+
+\section{Giới thiệu các kỹ thuật giải quyết chủ đề}
+
+Trong những năm gần đây, hệ thống khuyến nghị đã và đang chuyển dịch từ kiến trúc tập trung hoàn toàn trên đám mây (Cloud-centric) sang kiến trúc học hợp tác giữa thiết bị và đám mây (Device-Cloud Collaborative Learning - DCCL) nhằm giải quyết các hạn chế về quyền riêng tư, độ trễ và chi phí băng thông. Sự phát triển này thu hút sự quan tâm của nhiều nhóm nghiên cứu cũng như các kỹ sư hệ thống từ các công ty công nghệ hàng đầu, dẫn đến việc đề xuất hàng loạt các kỹ thuật và framework đa dạng. 
+
+Dựa trên các nghiên cứu nổi bật được phân tích trong đề tài, các kỹ thuật giải quyết chủ đề khuyến nghị học hợp tác thiết bị - đám mây có thể được tổng hợp thành các hướng tiếp cận chính như sau:
+
+\begin{itemize}
+    \item \textbf{Phân tán tính toán và học hợp tác (Collaborative Learning):} Đây là kỹ thuật nền tảng cho kiến trúc DCCL, đề xuất việc tách biệt mô hình thành phần trên đám mây (lưu trữ và học đặc trưng toàn cục) và phần trên thiết bị (cá nhân hóa dựa trên đồ thị cục bộ). Phương pháp này giúp giảm tải việc truyền dữ liệu thô, thay vào đó hệ thống chỉ trao đổi các biểu diễn (embeddings) hoặc tham số trọng số, từ đó tối ưu băng thông và bảo vệ quyền riêng tư \cite{yao2021device}.
+    
+    \item \textbf{Học siêu tham số và tối ưu hóa thích ứng (Meta Learning / Meta Controller):} Để khắc phục vấn đề dữ liệu trên từng thiết bị đơn lẻ bị thưa thớt (sparsity) và biến động liên tục, các tác giả đề xuất sử dụng phương pháp Meta-Learning. Trong đó, đám mây không chỉ cung cấp mô hình chung mà còn cung cấp một mô hình điều khiển (Meta Controller) giúp thiết bị học cách thích ứng nhanh chóng với sự thay đổi trong sở thích của người dùng ngay cả khi chỉ có một lượng nhỏ dữ liệu tương tác mới nhất \cite{yao2022meta}.
+    
+    \item \textbf{Cơ chế hiệu chỉnh hợp tác (Collaborative Correction):} Các mô hình chạy trực tiếp trên thiết bị thường gặp phải hiện tượng chệch (bias) do chúng chỉ tiếp xúc với một vùng nhỏ của dữ liệu cục bộ thay vì cái nhìn toàn cảnh của đám mây. Kỹ thuật hiệu chỉnh hợp tác ra đời để giải quyết vấn đề này. Đám mây sẽ tính toán và gửi các tín hiệu hiệu chỉnh (correction signals) xuống thiết bị để tinh chỉnh quá trình dự đoán xếp hạng (ranking), đảm bảo tính chính xác toàn cục nhưng vẫn giữ được độ trễ thấp của on-device inference \cite{wang2025correction}.
+    
+    \item \textbf{Thiết kế hệ thống và nền tảng sản xuất (Production Systems):} Bên cạnh việc tối ưu thuật toán, một hướng kỹ thuật quan trọng khác là việc xây dựng hạ tầng phần mềm thực tế để có thể triển khai DCCL trên quy mô hàng tỷ thiết bị. Tiêu biểu là việc phát triển các hệ thống end-to-end (như hệ thống Walle), cung cấp một pipeline hoàn chỉnh từ bước xử lý dữ liệu, lên lịch huấn luyện, cho đến triển khai mô hình trên nhiều dòng thiết bị phần cứng khác nhau, đóng vai trò như một môi trường thực thi vững chắc cho các thuật toán DCCL \cite{cheng2022walle}.
+\end{itemize}
+
+Các kỹ thuật này không tồn tại độc lập mà thường bổ trợ lẫn nhau, tạo thành một hệ sinh thái hoàn chỉnh giúp hệ thống khuyến nghị đáp ứng được các yêu cầu khắt khe của môi trường thực tế. Trong các phần tiếp theo, chương này sẽ tổ chức và đánh giá chi tiết hơn về các đóng góp cũng như ưu, nhược điểm của từng nghiên cứu cụ thể.
+
+\section{Các nghiên cứu liên quan theo thời gian}
+
+Sự phát triển của kiến trúc hệ thống khuyến nghị học hợp tác thiết bị - đám mây (DCCL) có thể được quan sát rõ nét qua tiến trình thời gian từ khi hình thành ý tưởng cơ bản cho đến khi mở rộng thành các hệ thống thương mại phức tạp. Dưới đây là lộ trình phát triển qua các năm dựa trên các nghiên cứu tiêu biểu:
+
+\subsection{Giai đoạn khởi nguồn (2021)}
+Năm 2021 đánh dấu những bước đi đầu tiên trong việc hệ thống hóa kiến trúc DCCL cho hệ thống khuyến nghị. Nghiên cứu của \cite{yao2021device} đã đặt nền móng với giải pháp phân tách mô hình tính toán. Bằng cách giữ phần lớn mô hình (heavy model) trên đám mây để học biểu diễn toàn cục và đưa phần xếp hạng (ranking) xuống thiết bị di động, nghiên cứu này đã chứng minh tính khả thi của việc vừa giảm thiểu độ trễ, tiết kiệm băng thông, vừa bảo vệ quyền riêng tư do không cần tải dữ liệu thô của người dùng lên máy chủ.
+
+\subsection{Giai đoạn mở rộng thuật toán và hiện thực hệ thống (2022)}
+Đến năm 2022, trọng tâm nghiên cứu dịch chuyển từ việc thiết lập cấu trúc cơ bản sang giải quyết các bài toán hẹp, cụ thể hơn và đưa DCCL vào sản xuất thực tế:
+\begin{itemize}
+    \item \textbf{Cá nhân hóa và tối ưu hóa dữ liệu thưa:} Kế thừa những ưu điểm của kiến trúc DCCL, \cite{yao2022meta} nhận thấy thách thức của các mô hình trên thiết bị khi phải học với tập dữ liệu cục bộ nhỏ và biến động. Việc áp dụng Meta Learning để xây dựng một Meta Controller từ đám mây đã giúp thiết bị nhanh chóng hội tụ và thích nghi với sự dịch chuyển sở thích của người dùng.
+    \item \textbf{Cơ sở hạ tầng quy mô lớn:} Đi song song với sự tiến bộ về mặt thuật toán là sự hoàn thiện về nền tảng hệ thống. Sự ra đời của hệ thống Walle \cite{cheng2022walle} là một cột mốc kỹ thuật quan trọng. Hệ thống này cung cấp một pipeline tự động hóa từ phân phối tác vụ, quản lý mô hình đến đồng bộ hóa trọng số giữa đám mây và hàng tỷ thiết bị biên với các cấu hình phần cứng khác nhau.
+\end{itemize}
+
+\subsection{Giai đoạn tinh chỉnh và giải quyết chệch toàn cục (2025)}
+Khi DCCL được áp dụng rộng rãi, những hạn chế về độ chệch (bias) của mô hình chạy cục bộ ngày càng lộ rõ. Do các thiết bị chỉ nhìn thấy dữ liệu của người dùng hiện tại, kết quả ranking đôi khi thiếu sự đa dạng và mất đi tính chính xác so với mô hình toàn cục. Gần đây nhất, nghiên cứu về cơ chế hiệu chỉnh hợp tác \cite{wang2025correction} ra đời nhằm khắc phục nhược điểm này. Việc đám mây chủ động tính toán và gửi các tín hiệu hiệu chỉnh xuống thiết bị đánh dấu một bước tiến mới, tối ưu hóa sự cân bằng giữa khả năng cá nhân hóa tại thiết bị (on-device personalization) và góc nhìn toàn cảnh từ đám mây (global perspective).
+
+\section{Đánh giá ưu nhược điểm của các nghiên cứu}
+
+Việc phân tích chuyên sâu các điểm mạnh và điểm yếu của từng kỹ thuật giúp hệ thống hóa những ưu điểm kế thừa được, cũng như nhận diện các thách thức còn tồn đọng khi áp dụng kiến trúc DCCL.
+
+\subsection{Device-Cloud Collaborative Learning for Recommendation \cite{yao2021device}}
+
+Là một trong những nghiên cứu mang tính định hình kiến trúc học hợp tác thiết bị - đám mây cho bài toán khuyến nghị, giải pháp này mang lại những đột phá lớn nhưng cũng tồn tại những giới hạn kỹ thuật nhất định.
+
+\textbf{Điểm mạnh:}
+\begin{itemize}
+    \item \textbf{Bảo mật và quyền riêng tư (Privacy-preserving):} Thay vì tải toàn bộ log hành vi của người dùng (click, view, v.v.) lên máy chủ tập trung như truyền thống, kiến trúc này giữ mọi dữ liệu thô ở lại thiết bị. Việc giao tiếp giữa thiết bị và đám mây chỉ thông qua các vector nhúng (embeddings) hoặc các tham số mô hình đã mã hóa, giúp hạn chế tối đa nguy cơ rò rỉ thông tin cá nhân.
+    \item \textbf{Độ trễ suy luận thấp (Low Latency):} Bằng cách triển khai mô hình xếp hạng (ranking) trực tiếp lên thiết bị di động, quá trình tính toán điểm số và sắp xếp các ứng viên diễn ra cục bộ. Cơ chế này loại bỏ sự phụ thuộc vào đường truyền mạng trong pha xếp hạng, mang lại trải nghiệm tương tác với độ trễ gần như bằng không.
+    \item \textbf{Khả năng cá nhân hóa thời gian thực:} Mô hình cục bộ có thể cập nhật và phản ứng ngay lập tức với các thao tác mới nhất của người dùng trong phiên làm việc hiện tại, thay vì phải đợi máy chủ đám mây tính toán và đồng bộ theo từng chu kỳ (batch processing).
+\end{itemize}
+
+\textbf{Điểm yếu:}
+\begin{itemize}
+    \item \textbf{Hiện tượng chệch dữ liệu cục bộ (Local Bias):} Do mô hình trên thiết bị chỉ được tinh chỉnh dựa trên một lượng nhỏ dữ liệu tương tác của một cá nhân, nó rất dễ gặp phải tình trạng quá khớp (overfitting) với sở thích ngắn hạn, dẫn đến việc thiếu đa dạng hóa và bỏ qua các xu hướng chung (global knowledge) đang phổ biến.
+    \item \textbf{Rào cản về tài nguyên phần cứng:} Mặc dù phần xếp hạng đã được tinh gọn, việc phải tải, lưu trữ và tính toán trên các vector nhúng (đôi khi lên đến hàng trăm chiều) vẫn tạo ra áp lực lớn về bộ nhớ và thời lượng pin đối với các thiết bị di động có cấu hình thấp (low-end devices).
+    \item \textbf{Phụ thuộc vào đám mây cho khâu sinh ứng viên (Candidate Retrieval):} Kiến trúc này chưa thể hoạt động độc lập hoàn toàn. Do không thể lưu trữ hàng triệu sản phẩm tại thiết bị, quá trình tìm kiếm ứng viên ban đầu vẫn bắt buộc phải gọi lên đám mây, đồng nghĩa với việc vẫn cần sự ổn định của kết nối mạng ở giai đoạn đầu của phễu khuyến nghị.
+\end{itemize}
+
+\subsection{Device-Cloud Collaborative Recommendation via Meta Learning \cite{yao2022meta}}
+
+Nhận thấy hạn chế về mặt dữ liệu cục bộ của kiến trúc DCCL cơ bản, nghiên cứu này đề xuất tích hợp phương pháp Meta-Learning (học cách học) thông qua một Meta Controller trên đám mây, giúp mô hình trên thiết bị thích nghi nhanh chóng với dữ liệu mới.
+
+\textbf{Điểm mạnh:}
+\begin{itemize}
+    \item \textbf{Giải quyết bài toán dữ liệu thưa (Data Sparsity):} Thiết bị di động thường chỉ lưu trữ một lịch sử tương tác rất ngắn. Bằng cách áp dụng Meta-Learning, mô hình đạt được khả năng học qua một vài mẫu (Few-shot learning), giúp nó nhanh chóng nắm bắt được sự dịch chuyển trong sở thích của người dùng mà không đòi hỏi lượng lớn dữ liệu tương tác.
+    \item \textbf{Cân bằng giữa tri thức toàn cục và cục bộ:} Meta Controller đóng vai trò như một cầu nối, mang theo những tín hiệu tổng quát (global knowledge) từ đám mây xuống để điều khiển và khởi tạo trọng số cho mạng nơ-ron trên thiết bị. Điều này giúp giảm thiểu đáng kể hiện tượng chệch (local bias) đặc trưng của các hệ thống on-device.
+    \item \textbf{Tối ưu hóa băng thông truyền tải:} Việc hệ thống trao đổi các tham số của Meta Controller và vector nhúng thay vì đồng bộ toàn bộ trọng số của một mô hình khổng lồ giúp duy trì sự tối ưu về băng thông mạng, phù hợp với môi trường di động.
+\end{itemize}
+
+\textbf{Điểm yếu:}
+\begin{itemize}
+    \item \textbf{Chi phí huấn luyện khổng lồ tại đám mây:} Phương pháp Meta-Learning thường yêu cầu quy trình tối ưu hóa hai vòng lặp lồng nhau (inner-loop và outer-loop) hoặc tính toán đạo hàm bậc hai. Điều này tiêu tốn cực kỳ nhiều tài nguyên tính toán và thời gian huấn luyện tại máy chủ đám mây.
+    \item \textbf{Tính ổn định và nhạy cảm (Instability):} Các mô hình Meta-Learning vốn nổi tiếng là nhạy cảm với việc thiết lập siêu tham số. Trong môi trường thương mại điện tử thực tế với sự đa dạng hành vi cực lớn và dữ liệu chứa nhiều nhiễu (noise), việc đảm bảo mô hình luôn hội tụ ổn định cho hàng triệu thiết bị khác nhau là một rủi ro lớn.
+\end{itemize}
+
+\subsection{Walle: Hệ thống sản xuất quy mô lớn cho DCCL \cite{cheng2022walle}}
+
+Khác với các nghiên cứu tập trung vào thuật toán, Walle đóng vai trò là một nền tảng cơ sở hạ tầng phần mềm (framework/system), được thiết kế nhằm đưa kiến trúc học hợp tác thiết bị - đám mây vào thực tiễn môi trường sản xuất với quy mô hàng tỷ thiết bị biên.
+
+\textbf{Điểm mạnh:}
+\begin{itemize}
+    \item \textbf{Tính toàn vẹn (End-to-End \& General-Purpose):} Walle cung cấp một pipeline hoàn chỉnh bao phủ từ khâu thu thập dữ liệu, phân phối tác vụ (task distribution) đến triển khai và giám sát mô hình. Nó không bị giới hạn chỉ ở bài toán khuyến nghị mà còn hỗ trợ tính toán cho nhiều tác vụ học máy đa dạng khác.
+    \item \textbf{Khả năng mở rộng quy mô (Large-Scale Scalability):} Hệ thống được kiến trúc để quản lý và đồng bộ mô hình trên hàng tỷ thiết bị đồng thời một cách đáng tin cậy. Đây là một đặc điểm thiết yếu để có thể triển khai thực tế trên các siêu ứng dụng thương mại điện tử.
+    \item \textbf{Xử lý phân mảnh phần cứng (Hardware Heterogeneity):} Thiết bị di động của người dùng rất đa dạng về cấu hình. Walle có khả năng nhận diện sức mạnh tính toán, trạng thái pin và kết nối mạng của từng thiết bị, từ đó linh hoạt lên lịch (schedule) các tác vụ suy luận sao cho không làm treo máy hoặc sụt pin của người dùng.
+\end{itemize}
+
+\textbf{Điểm yếu:}
+\begin{itemize}
+    \item \textbf{Chi phí triển khai và vận hành cực kỳ lớn:} Việc xây dựng, duy trì và vận hành một hệ thống phân tán đồ sộ như Walle đòi hỏi nền tảng máy chủ đám mây khổng lồ và nguồn lực kỹ sư chuyên sâu, nằm ngoài tầm với của hầu hết các dự án và doanh nghiệp vừa và nhỏ.
+    \item \textbf{Tính nội bộ và khó tiếp cận (Proprietary System):} Là một hệ thống sản xuất phục vụ hệ sinh thái doanh nghiệp khép kín, các thành phần cốt lõi của Walle không được mã nguồn mở hoàn toàn. Điều này gây khó khăn cho cộng đồng học thuật trong việc tái tạo (reproduce), kiểm chứng độc lập hoặc áp dụng vào các nghiên cứu mới.
+\end{itemize}
+
+\subsection{Device-Cloud Collaborative Correction for On-Device Recommendation \cite{wang2025correction}}
+
+Nghiên cứu này ra đời nhằm trực tiếp giải quyết vấn đề độ chệch (local bias) của mô hình chạy trên thiết bị bằng cách thiết lập một cơ chế hiệu chỉnh (correction mechanism) chủ động từ đám mây.
+
+\textbf{Điểm mạnh:}
+\begin{itemize}
+    \item \textbf{Nâng cao độ chính xác toàn cục (Global Accuracy):} Bằng cách tính toán và gửi các "tín hiệu hiệu chỉnh" từ mô hình khổng lồ trên đám mây xuống thiết bị, hệ thống giúp tinh chỉnh lại kết quả xếp hạng cục bộ. Điều này đảm bảo danh sách gợi ý không bị giới hạn trong sở thích ngắn hạn mà còn phản ánh được các xu hướng chung, cải thiện tính đa dạng của kết quả.
+    \item \textbf{Hiệu quả về chi phí truyền tải:} Tín hiệu hiệu chỉnh thường chỉ là các tham số vô hướng (scalars) hoặc các vector có số chiều thấp. Truyền tải các tín hiệu này tối ưu băng thông hơn rất nhiều so với việc tải xuống toàn bộ cấu trúc mô hình mới.
+    \item \textbf{Tính mô-đun hóa (Modularity):} Cơ chế hiệu chỉnh này hoạt động như một module cắm thêm (plug-and-play), có thể tích hợp linh hoạt lên trên các kiến trúc DCCL hiện tại mà không làm phá vỡ kiến trúc cốt lõi đã có.
+\end{itemize}
+
+\textbf{Điểm yếu:}
+\begin{itemize}
+    \item \textbf{Nguy cơ gia tăng độ trễ (Latency Risk):} Nếu cơ chế hiệu chỉnh đòi hỏi thiết bị phải chờ tín hiệu từ đám mây trước khi đưa ra kết quả cuối cùng cho người dùng, điều này sẽ làm mất đi ưu điểm lớn nhất của on-device inference là tốc độ phản hồi tức thời (real-time), đặc biệt trong điều kiện mạng yếu.
+    \item \textbf{Thách thức trong việc cân bằng trọng số (Weight Balancing):} Việc quyết định mức độ tác động của tín hiệu hiệu chỉnh lên kết quả cục bộ là một bài toán khó. Nếu hiệu chỉnh quá mạnh, hệ thống sẽ đánh mất tính cá nhân hóa; ngược lại, nếu quá yếu, quá trình hiệu chỉnh sẽ trở nên vô nghĩa và lãng phí băng thông.
+\end{itemize}

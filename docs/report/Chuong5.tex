@@ -1,0 +1,93 @@
+\chapter{KẾT LUẬN}
+
+\section{Tóm tắt đề tài}
+% TODO: Nhắc lại bài toán và mục tiêu đề ra từ Chương 1.
+% Gợi ý:
+%   - Đề tài nghiên cứu và hiện thực hệ thống khuyến nghị theo mô hình
+%     Device-Cloud Collaborative Learning (DCCL) dựa trên Graph Neural Networks.
+%   - Bài toán: Xây dựng pipeline hoàn chỉnh bảo vệ quyền riêng tư người dùng,
+%     giảm băng thông, đồng thời đảm bảo chất lượng khuyến nghị cá nhân hóa cao.
+
+\section{Tổng hợp các công việc đã thực hiện}
+% TODO: Liệt kê tóm tắt những gì nhóm đã làm.
+% Gợi ý (dùng itemize):
+\begin{itemize}
+    \item Khảo sát và hệ thống hóa lý thuyết về Graph Neural Networks (GraphSAGE)
+    và cơ chế Device-Cloud Collaborative Learning.
+
+    \item Nghiên cứu và phân tích 5 công trình tiêu biểu liên quan đến DCCL
+    và GNN-based Recommendation, từ đó xác định hướng tiếp cận cho đề tài.
+
+    \item Tiền xử lý và xây dựng đồ thị tương tác từ dataset Ali-CCP.
+
+    \item Xây dựng Cloud Server:
+    \begin{itemize}
+        \item Huấn luyện mô hình 2-layer GraphSAGE để sinh Item Embeddings.
+        \item Hiện thực 3-stage Candidate Retrieval API (Graph-based, Vector-based, Popularity).
+    \end{itemize}
+
+    \item Xây dựng Device Client:
+    \begin{itemize}
+        \item Chuyển đổi mô hình sang TFLite để thực hiện on-device inference.
+        \item Hiện thực pipeline: nhận candidates từ Cloud → ranking cục bộ → trả kết quả.
+    \end{itemize}
+
+    \item Đánh giá hệ thống trên các metrics: Precision@K, Recall@K, NDCG@K, HR@K.
+    \item So sánh với các phương pháp baseline và phân tích chi phí truyền thông.
+\end{itemize}
+
+\section{Ưu điểm và hạn chế}
+
+\subsection{Ưu điểm}
+% TODO: Nêu ưu điểm của hệ thống đã xây dựng.
+\begin{itemize}
+    \item \textbf{Bảo vệ quyền riêng tư:} Dữ liệu thô của người dùng không được
+    truyền lên Cloud, chỉ truyền vector nhúng (embeddings).
+
+    \item \textbf{Tiết kiệm băng thông:} [TODO: Điền con số cụ thể sau khi thực nghiệm]
+    lần tiết kiệm so với truyền dữ liệu thô.
+
+    \item \textbf{Độ trễ thấp:} Ranking được thực hiện cục bộ trên thiết bị,
+    không phụ thuộc vào kết nối mạng tại thời điểm suy luận.
+
+    \item \textbf{Pipeline hoàn chỉnh:} Đề tài hiện thực được end-to-end pipeline
+    từ huấn luyện Cloud GNN đến on-device inference, có thể mở rộng.
+
+    \item \textbf{Candidate Retrieval đa tầng:} Cơ chế 3-stage giúp đảm bảo tính
+    đa dạng và liên quan của danh sách ứng viên.
+\end{itemize}
+
+\subsection{Hạn chế}
+% TODO: Thành thật nêu các hạn chế còn tồn tại.
+\begin{itemize}
+    \item \textbf{Môi trường thực nghiệm giả lập:} Device được mô phỏng bằng máy tính,
+    chưa triển khai thực sự trên phần cứng di động vật lý.
+
+    \item \textbf{Chưa xử lý Cold-Start:} Hệ thống chưa có cơ chế xử lý hiệu quả
+    cho người dùng mới hoặc sản phẩm mới.
+
+    \item \textbf{Đồng bộ mô hình:} Cơ chế cập nhật mô hình từ Cloud xuống Device
+    chưa được hiện thực tự động.
+
+    \item \textbf{Quy mô dataset:} Thực nghiệm trên tập con của Ali-CCP do giới hạn
+    tài nguyên tính toán, chưa phản ánh đầy đủ quy mô thực tế.
+\end{itemize}
+
+\section{Hướng phát triển trong tương lai}
+% TODO: Đề xuất các hướng mở rộng.
+\begin{itemize}
+    \item \textbf{Federated Learning:} Tích hợp Federated Learning để Device có thể
+    đóng góp vào quá trình huấn luyện mô hình toàn cục mà không cần chia sẻ dữ liệu thô.
+
+    \item \textbf{On-device Model Update:} Hiện thực cơ chế cập nhật mô hình tự động
+    khi có phiên bản mới từ Cloud.
+
+    \item \textbf{Dynamic Graph:} Mở rộng mô hình GNN để xử lý đồ thị động
+    (thêm/bớt cạnh theo thời gian thực).
+
+    \item \textbf{Triển khai thực tế:} Đưa hệ thống lên phần cứng di động thực sự
+    (Android với TFLite) để đo lường hiệu năng thực tế.
+
+    \item \textbf{Multi-modal Features:} Tích hợp thêm đặc trưng hình ảnh/văn bản
+    của sản phẩm vào quá trình học embedding.
+\end{itemize}

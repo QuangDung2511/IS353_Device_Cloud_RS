@@ -1,0 +1,110 @@
+\chapter{THỰC NGHIỆM}
+
+\section{Giới thiệu Dataset}
+
+\subsection{Ali-CCP (Alibaba Click-Conversion Prediction)}
+% TODO: Mô tả chi tiết dataset.
+% Gợi ý:
+%   - Nguồn: Alibaba Tianchi Platform.
+%   - Quy mô: Số mẫu, số người dùng, số sản phẩm, thời gian thu thập.
+%   - Cấu trúc: user_id, item_id, timestamp, label (click/purchase), device features.
+%   - Tại sao chọn: Dataset thực tế từ chính Alibaba - đơn vị tiên phong DCCL.
+%   - Thống kê cơ bản (bảng hoặc biểu đồ): Phân phối rating, sparsity, ...
+
+\subsection{Tiền xử lý dữ liệu}
+% TODO: Mô tả các bước tiền xử lý.
+% Gợi ý:
+%   - Lọc người dùng/sản phẩm có ít tương tác (K-core filtering).
+%   - Chia tập train/validation/test (theo thời gian - temporal split).
+%   - Xây dựng đồ thị tương tác: Node = User + Item, Edge = Interaction.
+%   - So sánh dung lượng: Dữ liệu thô vs. Embeddings (minh họa lợi ích DCCL).
+
+\section{Sơ đồ thiết kế thực nghiệm}
+
+\subsection{Kiến trúc hệ thống tổng thể}
+% TODO: Chèn hình kiến trúc hệ thống DCCL.
+% Gợi ý nội dung hình:
+%   - Cloud Server: GNN Training (GraphSAGE) → Item Embedding Store → Candidate API.
+%   - Device Client: Local Subgraph → TFLite Ranker → Recommendations.
+%   - Kênh giao tiếp: REST API (JSON).
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.85\textwidth]{figures/system_architecture.png}
+%     \caption{Kiến trúc tổng thể hệ thống Device-Cloud Collaborative Learning}
+%     \label{fig:architecture}
+% \end{figure}
+
+\subsection{Lưu đồ giải thuật}
+% TODO: Vẽ lưu đồ minh họa quy trình inference end-to-end.
+% Gợi ý (dùng tikz hoặc chèn hình):
+%   Bước 1: Device gửi {user_id, k} lên Cloud.
+%   Bước 2: Cloud thực hiện 3-stage retrieval (Graph → Vector → Popularity).
+%   Bước 3: Cloud trả về {candidate_ids, embeddings}.
+%   Bước 4: Device ranking bằng TFLite model.
+%   Bước 5: Trả kết quả Top-K cho người dùng.
+
+\section{Các phương pháp đánh giá}
+
+% TODO: Mô tả 3-4 metrics sẽ sử dụng.
+
+\subsection{Precision@K}
+% Công thức: P@K = (số items liên quan trong top-K) / K
+
+\subsection{Recall@K}
+% Công thức: R@K = (số items liên quan trong top-K) / (tổng số items liên quan)
+
+\subsection{NDCG@K (Normalized Discounted Cumulative Gain)}
+% Công thức: NDCG@K = DCG@K / IDCG@K
+% Trong đó: DCG@K = \sum_{i=1}^{K} \frac{rel_i}{\log_2(i+1)}
+
+\subsection{Hit Rate@K}
+% Công thức: HR@K = 1 nếu item liên quan xuất hiện trong top-K, ngược lại 0.
+
+\section{Mô tả thực nghiệm}
+
+\subsection{Thiết lập thực nghiệm}
+% TODO: Mô tả cấu hình thực nghiệm.
+% Gợi ý:
+%   - Phần cứng: CPU/GPU dùng để huấn luyện Cloud model, thiết bị mô phỏng Device.
+%   - Thư viện: PyTorch Geometric (PyG), TensorFlow Lite, FastAPI.
+%   - Siêu tham số: Số lớp GNN, kích thước embedding, learning rate, batch size, epochs.
+%   - Baseline so sánh: BPR-MF, LightGCN, PureSVD.
+
+\subsection{Kết quả thực nghiệm}
+% TODO: Trình bày kết quả dưới dạng bảng so sánh.
+
+\begin{table}[h!]
+    \centering
+    \caption{Kết quả so sánh hiệu năng giữa các phương pháp trên tập test}
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabularx}{\textwidth}{|l|X|X|X|X|}
+        \hline
+        \textbf{Phương pháp} & \textbf{Precision@10} & \textbf{Recall@10} & \textbf{NDCG@10} & \textbf{HR@10} \\ \hline
+        BPR-MF       & --    & --    & --    & -- \\ \hline
+        LightGCN     & --    & --    & --    & -- \\ \hline
+        DCCL (Nhóm)  & --    & --    & --    & -- \\ \hline
+    \end{tabularx}
+    \label{tab:results}
+\end{table}
+
+\subsection{Phân tích kết quả}
+% TODO: Nhận xét và phân tích kết quả từ bảng so sánh.
+% Gợi ý:
+%   - So sánh hệ thống DCCL của nhóm với các baseline.
+%   - Phân tích ảnh hưởng của k (số ứng viên) đến chất lượng khuyến nghị.
+%   - Vẽ biểu đồ: Bar chart hoặc line chart thể hiện Precision/NDCG theo K.
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{figures/ndcg_comparison.png}
+%     \caption{So sánh NDCG@K của các phương pháp}
+%     \label{fig:ndcg}
+% \end{figure}
+
+\subsection{Phân tích chi phí truyền thông}
+% TODO: So sánh băng thông cần thiết giữa truyền dữ liệu thô và truyền embeddings.
+% Gợi ý (vẽ biểu đồ cột):
+%   - Truyền dữ liệu thô: X MB/request
+%   - Truyền embeddings: Y KB/request
+%   => Tiết kiệm Z lần băng thông.

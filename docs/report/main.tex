@@ -1,0 +1,118 @@
+%!TEX program = lualatex
+\documentclass[12pt, a4paper]{report}
+
+% --- Packages ---
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{amsmath, amssymb, amsfonts, mathtools}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2cm}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
+
+% Captions & tables
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{url}
+\usepackage{cleveref}
+\usepackage{tcolorbox}
+\usepackage{lmodern}
+\usepackage{array}
+
+\newcommand{\HRule}{\rule{\linewidth}{1pt}}
+
+\begin{document}
+
+% --- Thay đổi margin tạm thời để trang bìa nằm ở giữa giấy ---
+\newgeometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    {\large \textbf{ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH}}\\[0.5cm]
+    {\large \textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN}}\\[1.5cm]
+
+    % Logo trường
+    \includegraphics[scale=0.7]{logo-uit.png}\\[1.5cm]
+
+    {\Large \textbf{KHOA HỆ THỐNG THÔNG TIN}}\\[0.5cm]
+    {\large \textbf{IS353 - PHÂN TÍCH MẠNG XÃ HỘI}}\\[1cm]
+
+    \HRule \\[0.4cm]
+    \makebox[\textwidth][c]{\textbf{\large ĐỒ ÁN:}}\\[0.3cm]
+    \textbf{\Large DEVICE-CLOUD COLLABORATIVE LEARNING
+    FOR GRAPH NEURAL NETWORKS IN\\[0.2cm]
+    PERSONALIZED RECOMMENDATION SYSTEMS}\\[0.2cm]
+    \HRule \\[1.5cm]
+
+    % --- STUDENT AND INSTRUCTOR SIDE-BY-SIDE LAYOUT ---
+    \vspace{0.5cm}
+    \noindent
+    \begin{minipage}[t]{0.62\textwidth}
+        \large
+        \textbf{Nhóm sinh viên thực hiện:}\\[0.2cm]
+        \normalsize
+        1. Nguyễn Quang Dũng - 23520335 (Nhóm trưởng)\\[0.1cm]
+        2. Trần Nguyễn Tiến Đức - 23520322\\[0.1cm]
+        3. Lê Bá Vinh - 22521670\\[0.1cm]
+        4. Huỳnh Khánh Bảo - 23520101
+    \end{minipage}%
+    \begin{minipage}[t]{0.38\textwidth}
+        \large
+        \centering
+        \textbf{Giảng viên hướng dẫn:}\\[0.2cm]
+        \normalsize
+        % TODO: Điền tên giảng viên
+        ThS. Hà Lê Hoài Trung
+    \end{minipage}
+
+    \vfill
+    {\large TP. Hồ Chí Minh, 2026}
+\end{titlepage}
+
+% --- Khôi phục lại margin ban đầu (trái 3cm) để đóng gáy ---
+\restoregeometry
+
+\newpage
+\pagenumbering{roman}
+\renewcommand{\contentsname}{Mục lục}
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+
+% -- CHƯƠNG 1: Giới thiệu
+\input{Chuong1}
+% -- CHƯƠNG 2: Nền tảng lý thuyết
+\input{Chuong2}
+% -- CHƯƠNG 3: Các nghiên cứu liên quan
+\input{Chuong3}
+% -- CHƯƠNG 4: Thực nghiệm
+\input{Chuong4}
+% -- CHƯƠNG 5: Kết luận
+\input{Chuong5}
+
+\newpage
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+\renewcommand{\bibname}{Tài liệu tham khảo}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
