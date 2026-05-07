@@ -28,7 +28,7 @@ Xuyên suốt quá trình nghiên cứu và phát triển, nhóm đã hoàn thà
     
     \item \textbf{Phát triển luồng Suy luận Thiết bị (Device Inference):}
     \begin{itemize}
-        \item Chuyển đổi thành công bộ tổng hợp SAGE (SAGE Aggregator) và bộ giải mã cạnh (DotProduct Decoder) sang định dạng \textbf{TensorFlow Lite (.tflite)}.
+        \item Chuyển đổi thành công bộ tổng hợp SAGE (SAGE Aggregator) và bộ giải mã cạnh (DotProduct Decoder) sang định dạng \textbf{vi mô dành cho thiết bị di động (như TensorFlow Lite)}.
         \item Hiện thực luồng xử lý cục bộ: Tải vector nhúng từ Cloud $\rightarrow$ Tổng hợp đặc trưng láng giềng $\rightarrow$ Xếp hạng (Ranking) trực tiếp trên thiết bị để đưa ra danh sách khuyến nghị.
     \end{itemize}
     
@@ -64,7 +64,7 @@ Bên cạnh những kết quả đạt được, đồ án vẫn còn một số
 Dựa trên nền tảng kỹ thuật vững chắc đã xây dựng, cùng việc phân tích những hạn chế hiện đọng, nhóm đề xuất các hướng phát triển tiếp theo nhằm hoàn thiện và thương mại hóa hệ thống:
 
 \begin{itemize}
-    \item \textbf{Triển khai Ứng dụng Di động Native:} Đóng gói toàn bộ mô hình `.tflite` và luồng xử lý cục bộ vào một ứng dụng Android/iOS thực tế. Tiến hành đo benchmark chi tiết về tài nguyên phần cứng (CPU, RAM, Battery) trong nhiều điều kiện mạng khác nhau.
+    \item \textbf{Triển khai Ứng dụng Di động Native:} Đóng gói toàn bộ mô hình suy luận tại biên và luồng xử lý cục bộ vào một ứng dụng Android/iOS thực tế. Tiến hành đo benchmark chi tiết về tài nguyên phần cứng (CPU, RAM, Battery) trong nhiều điều kiện mạng khác nhau.
     
     \item \textbf{Tích hợp Federated Learning (Học liên kết):} Nâng cấp kiến trúc DCCL hiện tại lên một tầm cao mới bằng cách cho phép các thiết bị thực hiện tính toán Gradient cục bộ dựa trên lỗi dự đoán (loss), sau đó gửi mã hóa Gradient (thay vì dữ liệu) lên Cloud để cập nhật mô hình trung tâm một cách bảo mật.
     
