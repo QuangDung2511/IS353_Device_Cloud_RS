@@ -188,12 +188,6 @@ Hàm mất mát được tính toán dựa trên cả cạnh dương và cạnh 
 
 Để làm nổi bật ưu điểm của GraphSAGE, đề tài triển khai một mô hình đối chứng dựa trên Mạng tích chập đồ thị (\textit{Graph Convolutional Network - GCN}). GCN được coi là một trong những thuật toán nền tảng nhất trong lĩnh vực GNN:
 
-\begin{itemize}
-    \item \textbf{Cấu trúc:} Mô hình gồm 2 lớp \texttt{GCNConv} được bọc bởi hàm \texttt{to\_hetero}. Khác với GraphSAGE thực hiện lấy mẫu lân cận, mô hình GCN này được huấn luyện ở chế độ toàn đồ thị (\textit{full-graph training}).
-    \item \textbf{Hạn chế kỹ thuật:} Thực nghiệm cho thấy \texttt{GCNConv} nguyên bản không hỗ trợ trực tiếp cơ chế truyền tin lưỡng phân (\textit{bipartite message passing}) giữa hai loại nút khác nhau (User và Item). Điều này đòi hỏi các bước xử lý bổ trợ như vô hướng hóa đồ thị hoặc sử dụng các lớp chuyển đổi đặc thù.
-    \item \textbf{Tính chất Transductive:} GCN có xu hướng học các biểu diễn phụ thuộc mạnh vào cấu trúc đồ thị cố định trong quá trình huấn luyện. Do đó, khả năng tổng quát hóa (inductive) của GCN trên các người dùng chưa từng thấy (\textit{Hidden Users}) thường kém hiệu quả hơn so với GraphSAGE, tạo ra một "khoảng cách hiệu năng" (\textit{performance gap}) đáng kể khi áp dụng vào thực tế DCCL.
-\end{itemize}
-
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{images/training_loss_auroc.png}
@@ -201,6 +195,12 @@ Hàm mất mát được tính toán dựa trên cả cạnh dương và cạnh 
     \label{fig:train_val_metrics}
 \end{figure}
 
+
+\begin{itemize}
+    \item \textbf{Cấu trúc:} Mô hình gồm 2 lớp \texttt{GCNConv} được bọc bởi hàm \texttt{to\_hetero}. Khác với GraphSAGE thực hiện lấy mẫu lân cận, mô hình GCN này được huấn luyện ở chế độ toàn đồ thị (\textit{full-graph training}).
+    \item \textbf{Hạn chế kỹ thuật:} Thực nghiệm cho thấy \texttt{GCNConv} nguyên bản không hỗ trợ trực tiếp cơ chế truyền tin lưỡng phân (\textit{bipartite message passing}) giữa hai loại nút khác nhau (User và Item). Điều này đòi hỏi các bước xử lý bổ trợ như vô hướng hóa đồ thị hoặc sử dụng các lớp chuyển đổi đặc thù.
+    \item \textbf{Tính chất Transductive:} GCN có xu hướng học các biểu diễn phụ thuộc mạnh vào cấu trúc đồ thị cố định trong quá trình huấn luyện. Do đó, khả năng tổng quát hóa (inductive) của GCN trên các người dùng chưa từng thấy (\textit{Hidden Users}) thường kém hiệu quả hơn so với GraphSAGE, tạo ra một "khoảng cách hiệu năng" (\textit{performance gap}) đáng kể khi áp dụng vào thực tế DCCL.
+\end{itemize}
 
 \subsection{Kịch bản thực nghiệm DCCL}
 
